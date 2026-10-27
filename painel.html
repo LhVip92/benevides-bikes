@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Benevides Bikes</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root { --azul-logo: #38B6D9; --azul-texto: #1B3B5A; --laranja-marca: #F15A24; --cinza-fundo: #F2F4F7; --branco: #FFFFFF; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: var(--cinza-fundo); margin: 0; padding: 20px; color: #333;}
+        h1, h2, h3 { font-family: 'Montserrat', sans-serif; color: var(--azul-texto); }
+        .header { background: var(--branco); padding: 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--laranja-marca); }
+        .header h1 { margin: 0; font-size: 24px; }
+        .header span { font-size: 14px; color: #777; font-weight: 500;}
+        
+        .container { display: flex; gap: 20px; flex-wrap: wrap; }
+        .card { background: var(--branco); padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); flex: 1; min-width: 300px; }
+        .card h2 { border-bottom: 2px solid var(--azul-logo); padding-bottom: 10px; margin-top: 0; font-size: 20px;}
+        
+        label { display: block; margin: 15px 0 5px 0; font-weight: 600; font-size: 13px; color: var(--azul-texto);}
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: 'Poppins'; }
+        .row { display: flex; gap: 15px; }
+        .row > div { flex: 1; }
+        
+        .check-group { display: flex; gap: 20px; margin-top: 15px; background: #f9f9f9; padding: 10px; border-radius: 6px; border: 1px solid #eee;}
+        .check-item { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #555; cursor: pointer;}
+        .check-item input { width: auto; cursor: pointer;}
+        #div-preco-promo { display: none; margin-top: 10px; background: #fff3e0; padding: 15px; border-radius: 6px; border: 1px dashed var(--laranja-marca);}
+
+        button { background: var(--laranja-marca); color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: 0.2s;}
+        button:hover { background: #d94e1f; }
+        .btn-cancelar { background: #777; display: none; margin-top: 10px; }
+        .btn-add { background: var(--azul-logo); margin-top: 5px; padding: 10px; font-size: 14px;}
+        
+        .variacao-item { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; border: 1px dashed #ccc; padding: 10px; border-radius: 6px;}
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 13px; vertical-align: middle;}
+        th { background: var(--azul-logo); color: white; }
+        .img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;}
+        
+        .acoes-cell { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-acao { border: none; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 14px; transition: 0.2s; display: flex; align-items: center; justify-content: center; width: 35px; height: 35px;}
+        .btn-fotos { background: #9b59b6; color: white; }
+        .btn-edit { background: #f0ad4e; color: white; }
+        .btn-delete { background: #ff4d4d; color: white; }
+        .btn-toggle { background: #5bc0de; color: white; }
+        .btn-toggle.off { background: #777; }
+        
+        .badge { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; color: white; margin-right: 4px; display: inline-block; margin-bottom: 2px;}
+        .bg-promo { background: var(--laranja-marca); }
+        .bg-destaque { background: var(--azul-texto); }
+        .bg-inativo { background: #999; }
+        .preco-riscado { text-decoration: line-through; color: #999; font-size: 11px; display: block;}
+
+        .modal { display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--azul-logo); padding-bottom: 10px; margin-bottom: 20px;}
+        .modal-header h2 { margin: 0; border: none; padding: 0;}
+        .close-modal { font-size: 24px; cursor: pointer; color: #777; }
+        
+        .foto-item { display: flex; align-items: center; gap: 15px; background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee;}
+        .foto-item img { width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 2px solid #ddd;}
+        .foto-info { flex: 1; }
+        .foto-info strong { display: block; color: var(--azul-texto); margin-bottom: 5px;}
+        .foto-acoes { display: flex; flex-direction: column; gap: 5px; }
+        .btn-small { padding: 5px 10px; font-size: 12px; margin: 0; width: auto; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚲 Painel Benevides Bikes</h1>
+        <span>Área do Lojista</span>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2 id="titulo-form">Cadastrar Nova Bike</h2>
+            <form id="formProduto">
+                <input type="hidden" id="edit_id" value="">
+                
+                <label>Nome da Bike:</label>
+                <input type="text" id="nome" required>
+
+                <label>Descrição (Para o Agente IA):</label>
+                <input type="text" id="descricao">
+                
+                <div class="row">
+                    <div>
+                        <label>Categoria:</label>
+                        <select id="categoria">
+                            <option value="Mountain">Mountain Bike</option>
+                            <option value="Urbana">Urbana / Retrô</option>
+                            <option value="Infantil">Infantil</option>
+                            <option value="Customizada">Customizada</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Preço à Vista (R$):</label>
+                        <input type="number" step="0.01" id="preco_avista" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div>
+                        <label>Preço Parcelado (R$):</label>
+                        <input type="number" step="0.01" id="preco_parcelado" required>
+                    </div>
+                    <div>
+                        <label>Nº de Parcelas:</label>
+                        <input type="number" id="qtd_parcelas" value="10" required>
+                    </div>
+                </div>
+
+                <div class="check-group">
+                    <label class="check-item"><input type="checkbox" id="em_promocao" onchange="togglePromocao()"> Em Promoção</label>
+                    <label class="check-item"><input type="checkbox" id="em_destaque"> Destaque</label>
+                </div>
+
+                <div id="div-preco-promo">
+                    <label style="color: var(--laranja-marca);">Preço Promocional à Vista (R$):</label>
+                    <input type="number" step="0.01" id="preco_promocional" placeholder="Ex: 399.90">
+                </div>
+
+                <label style="margin-top: 20px; font-size: 15px; color: var(--laranja-marca);" id="label-fotos">Cores e Fotos</label>
+                <div id="container-variacoes">
+                    <div class="variacao-item">
+                        <input type="text" name="cor[]" placeholder="Cor (Ex: Rosa)" required>
+                        <input type="file" name="foto[]" accept="image/*" required>
+                    </div>
+                </div>
+                <button type="button" class="btn-add" onclick="adicionarCor()">+ Adicionar Outra Cor</button>
+
+                <button type="submit" id="btn-submit" style="margin-top: 20px;">Salvar no Banco de Dados</button>
+                <button type="button" class="btn-cancelar" id="btn-cancelar" onclick="cancelarEdicao()">Cancelar Edição</button>
+            </form>
+        </div>
+
+        <div class="card" style="flex: 2;">
+            <h2>Bikes no Catálogo</h2>
+            <table id="tabelaProdutos">
+                <thead>
+                    <tr>
+                        <th>Foto</th>
+                        <th>Nome</th>
+                        <th>Preço</th>
+                        <th>Tags</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="modalFotos" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Gerenciar Fotos e Cores</h2>
+                <span class="close-modal" onclick="fecharModalFotos()">&times;</span>
+            </div>
+            <div id="lista-fotos-modal">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let produtosCache = [];
+
+        function togglePromocao() {
+            const isPromo = document.getElementById('em_promocao').checked;
+            document.getElementById('div-preco-promo').style.display = isPromo ? 'block' : 'none';
+            document.getElementById('preco_promocional').required = isPromo;
+            if (!isPromo) document.getElementById('preco_promocional').value = '';
+        }
+
+        function adicionarCor() {
+            const container = document.getElementById('container-variacoes');
+            const novaDiv = document.createElement('div');
+            novaDiv.className = 'variacao-item';
+            novaDiv.innerHTML = `
+                <input type="text" name="cor[]" placeholder="Outra Cor">
+                <input type="file" name="foto[]" accept="image/*">
+                <button type="button" onclick="this.parentElement.remove()" style="width: auto; padding: 5px 10px; margin:0; background: #999; font-size: 12px;">X</button>
+            `;
+            container.appendChild(novaDiv);
+        }
+
+        async function carregarProdutos() {
+            try {
+                const resposta = await fetch('/admin/produtos', {
+                    cache: 'no-store',
+                    headers: { 'Authorization': 'Basic ' + btoa('admin_benevides:Benevi2026!') }
+                });
+                if (!resposta.ok) throw new Error("Erro de autenticação");
+
+                produtosCache = await resposta.json();
+                const tbody = document.querySelector('#tabelaProdutos tbody');
+                tbody.innerHTML = ''; 
+
+                if (produtosCache.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">Nenhuma bike cadastrada ainda.</td></tr>';
+                    return;
+                }
+
+                produtosCache.forEach(p => {
+                    let imgHTML = (p.variacoes && p.variacoes.length > 0) ? `<img src="${p.variacoes[0].imagem_url}" class="img-preview">` : 'Sem foto';
+                    
+                    let tagsHTML = '';
+                    if (!p.ativo) tagsHTML += `<span class="badge bg-inativo">OCULTA</span>`;
+                    if (p.em_promocao) tagsHTML += `<span class="badge bg-promo">PROMOÇÃO</span>`;
+                    if (p.em_destaque) tagsHTML += `<span class="badge bg-destaque">DESTAQUE</span>`;
+
+                    let precoHTML = `R$ ${p.preco_avista.toFixed(2)}<br><small>${p.qtd_parcelas}x R$ ${p.preco_parcelado.toFixed(2)}</small>`;
+                    if (p.em_promocao && p.preco_promocional) {
+                        precoHTML = `<span class="preco-riscado">De: R$ ${p.preco_avista.toFixed(2)}</span>
+                                     <strong style="color:var(--laranja-marca); font-size:14px;">Por: R$ ${p.preco_promocional.toFixed(2)}</strong>`;
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${imgHTML}</td>
+                        <td><strong>${p.nome}</strong><br><small>${p.categoria}</small></td>
+                        <td>${precoHTML}</td>
+                        <td>${tagsHTML}</td>
+                        <td>
+                            <div class="acoes-cell">
+                                <button class="btn-acao btn-fotos" onclick="abrirModalFotos(${p.id})" title="Editar Fotos/Cores">
+                                    <i class="fa-solid fa-images"></i>
+                                </button>
+                                <button class="btn-acao btn-toggle ${!p.ativo ? 'off' : ''}" onclick="alternarVisibilidade(${p.id})" title="${p.ativo ? 'Ocultar' : 'Mostrar'}">
+                                    <i class="fa-solid ${p.ativo ? 'fa-eye' : 'fa-eye-slash'}"></i>
+                                </button>
+                                <button class="btn-acao btn-edit" onclick="prepararEdicao(${p.id})" title="Editar Dados">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="btn-acao btn-delete" onclick="deletarProduto(${p.id})" title="Excluir">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error("Erro:", error);
+            }
+        }
+
+        function abrirModalFotos(produtoId) {
+            const produto = produtosCache.find(p => p.id === produtoId);
+            if (!produto) return;
+
+            const container = document.getElementById('lista-fotos-modal');
+            container.innerHTML = '';
+
+            if (!produto.variacoes || produto.variacoes.length === 0) {
+                container.innerHTML = '<p>Nenhuma foto cadastrada para este produto.</p>';
+            } else {
+                produto.variacoes.forEach(v => {
+                    const div = document.createElement('div');
+                    div.className = 'foto-item';
+                    div.innerHTML = `
+                        <img src="${v.imagem_url}" alt="${v.cor}">
+                        <div class="foto-info">
+                            <strong>${v.cor}</strong>
+                            <input type="file" id="file-var-${v.id}" accept="image/*" style="padding: 5px; font-size: 12px;">
+                        </div>
+                        <div class="foto-acoes">
+                            <button class="btn-acao btn-fotos btn-small" onclick="substituirFoto(${v.id})" title="Substituir Foto">
+                                <i class="fa-solid fa-upload"></i> Salvar
+                            </button>
+                            <button class="btn-acao btn-delete btn-small" onclick="deletarVariacao(${v.id}, ${produtoId})" title="Excluir Cor/Foto">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+            document.getElementById('modalFotos').style.display = 'flex';
+        }
+
+        function fecharModalFotos() {
+            document.getElementById('modalFotos').style.display = 'none';
+        }
+
+        async function substituirFoto(variacaoId) {
+            const fileInput = document.getElementById(`file-var-${variacaoId}`);
+            if (!fileInput.files.length) {
+                alert("Selecione uma nova imagem primeiro.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            const resposta = await fetch(`/admin/variacoes/${variacaoId}`, {
+                method: 'PUT',
+                headers: { 'Authorization': 'Basic ' + btoa('admin_benevides:Benevi2026!') },
+                body: formData
+            });
+
+            if (resposta.ok) {
+                alert("Foto atualizada com sucesso!");
+                await carregarProdutos(); 
+                fecharModalFotos();
+            } else {
+                alert("Erro ao atualizar foto.");
+            }
+        }
+
+        async function deletarVariacao(variacaoId, produtoId) {
+            if (!confirm("Tem certeza que deseja apagar esta cor e esta foto?")) return;
+
+            const resposta = await fetch(`/admin/variacoes/${variacaoId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Basic ' + btoa('admin_benevides:Benevi2026!') }
+            });
+
+            if (resposta.ok) {
+                alert("Cor/Foto excluída!");
+                await carregarProdutos();
+                abrirModalFotos(produtoId);
+            } else {
+                alert("Erro ao excluir variação.");
+            }
+        }
+
+        async function alternarVisibilidade(id) {
+            const resposta = await fetch(`/admin/produtos/${id}/toggle`, {
+                method: 'PATCH',
+                headers: { 'Authorization': 'Basic ' + btoa('admin_benevides:Benevi2026!') }
+            });
+            if (resposta.ok) carregarProdutos(); 
+        }
+
+        async function deletarProduto(id) {
+            if (!confirm("Tem certeza que deseja excluir esta bike INTEIRA?")) return;
+            const resposta = await fetch(`/admin/produtos/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': 'Basic ' + btoa('admin_benevides:Benevi2026!') }
+            });
+            if (resposta.ok) { alert("Bike excluída!"); carregarProdutos(); }
+        }
+
+        function prepararEdicao(id) {
+            const produto = produtosCache.find(p => p.id === id);
+            if (!produto) return;
+
+            document.getElementById('titulo-form').innerText = "Editar Bike";
+            document.getElementById('btn-submit').innerText = "Salvar Alterações";
+            document.getElementById('btn-cancelar').style.display = "block";
+            document.getElementById('label-fotos').innerText = "Adicionar Novas Cores/Fotos (Opcional)";
+            
+            document.getElementById('edit_id').value = produto.id;
+            document.getElementById('nome').value = produto.nome;
+            document.getElementById('descricao').value = produto.descricao;
+            document.getElementById('categoria').value = produto.categoria;
+            document.getElementById('preco_avista').value = produto.preco_avista;
+            document.getElementById('preco_parcelado').value = produto.preco_parcelado;
+            document.getElementById('qtd_parcelas').value = produto.qtd_parcelas;
+            
+            document.getElementById('em_promocao').checked = produto.em_promocao;
+            document.getElementById('em_destaque').checked = produto.em_destaque;
+            
+            if (produto.preco_promocional) {
+                document.getElementById('preco_promocional').value = produto.preco_promocional;
+            } else {
+                document.getElementById('preco_promocional').value = '';
+            }
+            togglePromocao();
+
+            document.getElementById('container-variacoes').innerHTML = `
+                <div class="variacao-item">
+                    <input type="text" name="cor[]" placeholder="Nova Cor (Opcional)">
+                    <input type="file" name="foto[]" accept="image/*">
+                </div>
+            `;
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function cancelarEdicao() {
+            document.getElementById('formProduto').reset();
+            document.getElementById('edit_id').value = "";
+            document.getElementById('titulo-form').innerText = "Cadastrar Nova Bike";
+            document.getElementById('btn-submit').innerText = "Salvar no Banco de Dados";
+            document.getElementById('btn-cancelar').style.display = "none";
+            document.getElementById('label-fotos').innerText = "Cores e Fotos";
+            document.getElementById('div-preco-promo').style.display = 'none';
+            
+            document.getElementById('container-variacoes').innerHTML = `
+                <div class="variacao-item">
+                    <input type="text" name="cor[]" placeholder="Cor" required>
+                    <input type="file" name="foto[]" accept="image/*" required>
+                </div>
+            `;
+        }
+
+        carregarProdutos();
+
+        document.getElementById('formProduto').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const editId = document.getElementById('edit_id').value;
+            const formData = new FormData();
+            formData.append('nome', document.getElementById('nome').value);
+            formData.append('descricao', document.getElementById('descricao').value);
+            formData.append('categoria', document.getElementById('categoria').value);
+            formData.append('preco_avista', document.getElementById('preco_avista').value);
+            formData.append('preco_parcelado', document.getElementById('preco_parcelado').value);
+            formData.append('qtd_parcelas', document.getElementById('qtd_parcelas').value);
+            formData.append('em_promocao', document.getElementById('em_promocao').checked);
+            formData.append('em_destaque', document.getElementById('em_destaque').checked);
+            
+            if (document.getElementById('em_promocao').checked) {
+                formData.append('preco_promocional', document.getElementById('preco_promocional').value);
+            }
+
+            const coresInputs = document.querySelectorAll('input[name="cor[]"]');
+            const fotosInputs = document.querySelectorAll('input[name="foto[]"]');
+
+            if (editId) {
+                coresInputs.forEach(input => { if(input.value) formData.append('novas_cores', input.value); });
+                fotosInputs.forEach(input => { if (input.files.length > 0) formData.append('novos_files', input.files[0]); });
+
+                const resposta = await fetch(`/admin/produtos/${editId}`, {
+                    method: 'PUT',
+                    headers: { 'Authorization': 'Basic ' + btoa('admin_benevides:Benevi2026!') },
+                    body: formData 
+                });
+
+                if (resposta.ok) {
+                    alert('Bike atualizada!');
+                    cancelarEdicao();
+                    carregarProdutos(); 
+                } else {
+                    alert('Erro ao atualizar.');
+                }
+
+            } else {
+                coresInputs.forEach(input => formData.append('cores', input.value));
+                fotosInputs.forEach(input => { if (input.files.length > 0) formData.append('files', input.files[0]); });
+
+                const resposta = await fetch('/admin/produtos', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Basic ' + btoa('admin_benevides:Benevi2026!') },
+                    body: formData 
+                });
+
+                if (resposta.ok) {
+                    alert('Bike cadastrada!');
+                    cancelarEdicao();
+                    carregarProdutos(); 
+                } else {
+                    alert('Erro ao cadastrar.');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

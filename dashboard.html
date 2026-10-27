@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Estratégico - Benevides Bikes</title>
+    
+    <!-- Fontes e Ícones -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Biblioteca de Gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --azul-logo: #38B6D9;
+            --azul-texto: #1B3B5A;
+            --laranja-marca: #F15A24;
+            --cinza-fundo: #F2F4F7;
+            --branco: #FFFFFF;
+            --sombra: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Poppins', sans-serif; background: var(--cinza-fundo); color: #333; padding: 30px 20px; }
+        h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
+        
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        /* Topo do Dashboard */
+        .header { display: flex; justify-content: space-between; align-items: center; background: var(--branco); padding: 20px 30px; border-radius: 12px; margin-bottom: 30px; box-shadow: var(--sombra); border-left: 5px solid var(--laranja-marca); }
+        .header h1 { color: var(--azul-texto); font-size: 24px; display: flex; align-items: center; gap: 10px;}
+        .header h1 i { color: var(--laranja-marca); }
+        
+        .btn-voltar { background: var(--azul-texto); color: white; padding: 10px 20px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.3s; display: flex; align-items: center; gap: 8px;}
+        .btn-voltar:hover { background: var(--azul-logo); transform: translateY(-2px); }
+
+        /* Cards de Métricas */
+        .metricas { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; margin-bottom: 30px; }
+        .card-metrica { background: var(--branco); padding: 30px; border-radius: 12px; box-shadow: var(--sombra); display: flex; align-items: center; gap: 20px; position: relative; overflow: hidden; transition: transform 0.3s;}
+        .card-metrica:hover { transform: translateY(-5px); }
+        
+        /* Linha decorativa no topo de cada card */
+        .card-metrica::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--azul-logo); }
+        .card-metrica.laranja::before { background: var(--laranja-marca); }
+        .card-metrica.verde::before { background: #25D366; }
+        
+        .icon-metrica { width: 70px; height: 70px; border-radius: 20px; background: rgba(56, 182, 217, 0.1); color: var(--azul-logo); display: flex; align-items: center; justify-content: center; font-size: 30px;}
+        .card-metrica.laranja .icon-metrica { background: rgba(241, 90, 36, 0.1); color: var(--laranja-marca); }
+        .card-metrica.verde .icon-metrica { background: rgba(37, 211, 102, 0.1); color: #25D366; }
+        
+        .info-metrica h3 { font-size: 14px; color: #777; font-weight: 500; margin-bottom: 5px; }
+        .info-metrica p { font-size: 32px; font-weight: 800; color: var(--azul-texto); font-family: 'Montserrat'; line-height: 1;}
+
+        /* Área dos Gráficos */
+        .graficos { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
+        @media (max-width: 900px) { .graficos { grid-template-columns: 1fr; } }
+
+        .card-grafico { background: var(--branco); padding: 30px; border-radius: 12px; box-shadow: var(--sombra); }
+        .card-grafico h3 { color: var(--azul-texto); font-size: 18px; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;}
+        .card-grafico h3 i { color: var(--azul-logo); }
+        
+        .chart-container { position: relative; height: 350px; width: 100%; }
+
+        /* Card de Insight (Lateral) */
+        .card-insight { background: linear-gradient(135deg, var(--azul-texto), #0f2133); color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px 30px;}
+        .card-insight i { font-size: 50px; color: var(--laranja-marca); margin-bottom: 20px; }
+        .card-insight h3 { color: white; font-size: 20px; margin-bottom: 10px;}
+        .card-insight p { color: #a0b2c6; font-size: 14px; line-height: 1.6; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fa-solid fa-chart-pie"></i> Dashboard de Vendas</h1>
+            <a href="/painel" class="btn-voltar"><i class="fa-solid fa-arrow-left"></i> Voltar ao Painel</a>
+        </div>
+
+        <!-- Métricas Principais -->
+        <div class="metricas">
+            <div class="card-metrica">
+                <div class="icon-metrica"><i class="fa-solid fa-eye"></i></div>
+                <div class="info-metrica">
+                    <h3>Acessos ao Catálogo</h3>
+                    <p id="metrica-visitas">0</p>
+                </div>
+            </div>
+            
+            <div class="card-metrica laranja">
+                <div class="icon-metrica"><i class="fa-brands fa-whatsapp"></i></div>
+                <div class="info-metrica">
+                    <h3>Cliques no WhatsApp</h3>
+                    <p id="metrica-cliques">0</p>
+                </div>
+            </div>
+
+            <div class="card-metrica verde">
+                <div class="icon-metrica"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                <div class="info-metrica">
+                    <h3>Taxa de Interesse</h3>
+                    <p id="metrica-taxa">0%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área de Gráficos -->
+        <div class="graficos">
+            <!-- Gráfico de Barras -->
+            <div class="card-grafico">
+                <h3><i class="fa-solid fa-fire"></i> Top 5 Bikes Mais Desejadas</h3>
+                <div class="chart-container">
+                    <canvas id="graficoProdutos"></canvas>
+                </div>
+            </div>
+
+            <!-- Card Lateral de Dica -->
+            <div class="card-grafico card-insight">
+                <i class="fa-solid fa-lightbulb"></i>
+                <h3>O que isso significa?</h3>
+                <p>Este painel mostra o comportamento real dos clientes. Se uma bike tem muitos cliques no WhatsApp, significa que ela está atraindo compradores. Use esses dados para destacar os produtos certos nas redes sociais!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cores da Benevides para o Gráfico
+        const corLaranja = '#F15A24';
+        const corAzul = '#38B6D9';
+
+        async function carregarDashboard() {
+            try {
+                // Busca os dados no Python (Passando a senha de admin)
+                const res = await fetch('/admin/dashboard', {
+                    headers: { 'Authorization': 'Basic ' + btoa('admin_benevides:Benevi2026!') }
+                });
+                
+                if (!res.ok) throw new Error("Erro de autenticação");
+                
+                const data = await res.json();
+
+                // 1. Preencher os cartões numéricos
+                document.getElementById('metrica-visitas').innerText = data.visitas;
+                document.getElementById('metrica-cliques').innerText = data.cliques_whatsapp;
+
+                // 2. Calcular e preencher a Taxa de Interesse
+                let taxa = data.visitas > 0 ? ((data.cliques_whatsapp / data.visitas) * 100).toFixed(1) : 0;
+                document.getElementById('metrica-taxa').innerText = taxa + '%';
+
+                // 3. Montar o Gráfico de Barras (Top Produtos)
+                const nomes = data.top_produtos.map(p => p.nome.length > 25 ? p.nome.substring(0, 25) + '...' : p.nome);
+                const cliques = data.top_produtos.map(p => p.cliques);
+
+                const ctx = document.getElementById('graficoProdutos').getContext('2d');
+                
+                // Se não houver dados, exibe uma mensagem no gráfico
+                if (nomes.length === 0) {
+                    nomes.push("Nenhum clique registrado ainda");
+                    cliques.push(0);
+                }
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: nomes,
+                        datasets: [{
+                            label: 'Cliques no WhatsApp',
+                            data: cliques,
+                            backgroundColor: corLaranja,
+                            borderRadius: 8, // Bordas arredondadas nas barras
+                            barThickness: 40
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { 
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: '#1B3B5A',
+                                titleFont: { family: 'Poppins', size: 14 },
+                                bodyFont: { family: 'Poppins', size: 14 },
+                                padding: 10,
+                                cornerRadius: 8
+                            }
+                        },
+                        scales: { 
+                            y: { 
+                                beginAtZero: true, 
+                                ticks: { stepSize: 1, font: { family: 'Poppins' } },
+                                grid: { color: '#f0f0f0' }
+                            },
+                            x: {
+                                ticks: { font: { family: 'Poppins', size: 11 }, maxRotation: 45, minRotation: 45 },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+
+            } catch (e) {
+                console.error("Erro ao carregar dashboard", e);
+                alert("Não foi possível carregar os dados. Verifique se você está logado como admin.");
+            }
+        }
+
+        // Executa a função assim que a página abre
+        carregarDashboard();
+    </script>
+</body>
+</html>

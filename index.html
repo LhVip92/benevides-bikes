@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benevides Bikes - Sua Loja em Fortaleza</title>
+    <meta name="description" content="A sua loja de bicicletas em Fortaleza. Mountain bikes, urbanas, infantis e personalizadas com preços imperdíveis e atendimento do bairro.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
+
+    <style>
+        :root {
+            --azul-ciano: #38B6D9;     
+            --azul-marinho: #1B3B5A;   
+            --laranja-fogo: #F15A24;   
+            --laranja-hover: #d94e1f;
+            --cinza-fundo: #F8F9FA;
+            --branco: #FFFFFF;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--cinza-fundo); color: #333; line-height: 1.6; overflow-x: hidden; }
+        h1, h2, h3 { font-family: 'Montserrat', sans-serif; color: var(--azul-marinho); letter-spacing: -0.5px;}
+        a { text-decoration: none; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* --- NAVBAR PREMIUM --- */
+        .navbar { background-color: var(--branco); padding: 10px 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 25px rgba(0,0,0,0.06); }
+        .navbar .container { display: flex; justify-content: space-between; align-items: center; }
+        
+        .logo-container { display: flex; align-items: center; }
+        .logo-img { max-height: 100px; width: auto; display: block; transition: transform 0.3s ease; }
+        .logo-img:hover { transform: scale(1.02); }
+        
+        .btn-nav-catalogo { background-color: var(--laranja-fogo); color: white; padding: 12px 25px; border-radius: 30px; font-weight: 600; font-size: 15px; transition: 0.3s; box-shadow: 0 6px 15px rgba(241, 90, 36, 0.3); display: flex; align-items: center; gap: 10px;}
+        .btn-nav-catalogo:hover { background-color: var(--laranja-hover); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(241, 90, 36, 0.4); }
+
+        /* --- HERO PREMIUM --- */
+        .hero { 
+            background: radial-gradient(circle at 50% 40%, #224970 0%, #1B3B5A 60%, #0f2133 100%);
+            color: white; 
+            padding: 120px 20px 100px 20px; 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            border-bottom: 4px solid var(--azul-ciano);
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at center, rgba(56, 182, 217, 0.05) 0%, transparent 60%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .hero > * { position: relative; z-index: 1; }
+
+        .hero-badge {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #e1e8f0;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 25px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(5px);
+        }
+        .hero-badge i { color: var(--laranja-fogo); }
+
+        .hero h1 { font-size: 4.2rem; margin-bottom: 20px; line-height: 1.1; color: white; font-weight: 800; letter-spacing: -1.5px; }
+        .hero h1 span { color: var(--azul-ciano); }
+        .hero p { font-size: 1.2rem; max-width: 600px; margin-bottom: 45px; font-weight: 300; color: #b8c7d9; line-height: 1.6; }
+
+        .hero-botoes { display: flex; gap: 15px; align-items: center; justify-content: center; flex-wrap: wrap; }
+
+        .btn-hero { 
+            background-color: var(--laranja-fogo); color: white; padding: 18px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: 700; 
+            display: flex; align-items: center; gap: 10px; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            box-shadow: 0 10px 30px rgba(241, 90, 36, 0.4); border: 2px solid var(--laranja-fogo);
+        }
+        .btn-hero:hover { background-color: var(--laranja-hover); border-color: var(--laranja-hover); transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 35px rgba(241, 90, 36, 0.6); }
+
+        .btn-hero-outline {
+            background-color: transparent; color: white; padding: 18px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: 600; 
+            display: flex; align-items: center; gap: 10px; transition: 0.3s; border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        .btn-hero-outline:hover { background-color: rgba(255, 255, 255, 0.1); border-color: white; transform: translateY(-3px); }
+
+        /* --- DIFERENCIAIS --- */
+        .diferenciais { padding: 90px 0; background: var(--branco); }
+        .grid-diferenciais { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 35px; }
+        .card-diferencial { text-align: center; padding: 45px 30px; border-radius: 24px; background: var(--branco); transition: 0.4s ease; border: 1px solid #eef0f3; box-shadow: 0 10px 30px rgba(0,0,0,0.03);}
+        .card-diferencial:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(56, 182, 217, 0.15); border-color: var(--azul-ciano); }
+        .icon-box { width: 85px; height: 85px; background: var(--azul-ciano); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; margin: 0 auto 25px auto; box-shadow: 0 10px 20px rgba(56, 182, 217, 0.3);}
+        .card-diferencial h3 { margin-bottom: 15px; font-size: 1.35rem; }
+        .card-diferencial p { font-size: 0.95rem; color: #666; line-height: 1.7; }
+
+        /* --- BIKES PERSONALIZADAS --- */
+        .personalizada { padding: 110px 0; background: var(--cinza-fundo); }
+        .personalizada .container { display: flex; align-items: center; gap: 70px; flex-wrap: wrap; }
+        .personalizada-texto { flex: 1; min-width: 300px; }
+        .personalizada-img { flex: 1; min-width: 300px; border-radius: 24px; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
+        .personalizada-img img { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform 0.6s ease; }
+        .personalizada-img:hover img { transform: scale(1.05); }
+        .tag-custom { background: var(--laranja-fogo); color: white; padding: 8px 20px; border-radius: 30px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; display: inline-block; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(241, 90, 36, 0.2);}
+        .personalizada-texto h2 { font-size: 3rem; margin-bottom: 25px; line-height: 1.1; }
+        .personalizada-texto p { color: #555; font-size: 1.1rem; margin-bottom: 20px; line-height: 1.8; }
+        .btn-custom { display: inline-flex; align-items: center; gap: 12px; background: var(--laranja-fogo); color: white; padding: 18px 40px; border-radius: 50px; font-size: 1.1rem; font-weight: 600; transition: 0.3s; margin-top: 15px; box-shadow: 0 8px 25px rgba(241, 90, 36, 0.3);}
+        .btn-custom:hover { background: var(--laranja-hover); transform: translateY(-3px); box-shadow: 0 12px 30px rgba(241, 90, 36, 0.5); }
+
+        /* --- COMUNIDADE --- */
+        .comunidade { padding: 110px 0; background-color: var(--branco); }
+        .comunidade .container { display: flex; align-items: center; gap: 70px; flex-wrap: wrap; }
+        .comunidade-img { flex: 1; min-width: 300px; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 45px rgba(0,0,0,0.12); position: relative; }
+        .comunidade-img img { width: 100%; display: block; transition: 0.6s ease; }
+        .comunidade-img:hover img { transform: scale(1.05); }
+        .comunidade-texto { flex: 1; min-width: 300px; }
+        .comunidade-texto h2 { font-size: 2.8rem; margin-bottom: 25px; color: var(--laranja-fogo); line-height: 1.1;}
+        .comunidade-texto p { margin-bottom: 20px; font-weight: 400; font-size: 1.1rem; color: #555; line-height: 1.8; }
+
+        /* --- ECOSSISTEMA INTEGRADO --- */
+        .contato { padding: 110px 20px; text-align: center; background: var(--cinza-fundo); }
+        .contato h2 { font-size: 2.8rem; margin-bottom: 15px; }
+        .contato p { color: #666; margin-bottom: 50px; font-size: 1.1rem; }
+        .grid-contato { display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; max-width: 1000px; margin: 0 auto; }
+        .btn-contato { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 24px 45px; border-radius: 50px; font-size: 1.15rem; font-weight: 600; color: white; transition: 0.3s; flex: 1; min-width: 280px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .btn-contato:hover { transform: translateY(-6px); box-shadow: 0 15px 35px rgba(0,0,0,0.2); }
+        .btn-contato i { font-size: 1.6rem; }
+        .btn-wa { background: #25D366; }
+        .btn-wa:hover { background: #1eb954; }
+        .btn-map { background: var(--laranja-fogo); }
+        .btn-map:hover { background: var(--laranja-hover); }
+        .btn-insta { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+        .btn-insta:hover { opacity: 0.9; }
+
+        /* --- RODAPÉ --- */
+        footer { background: var(--azul-marinho); color: #a0b2c6; padding: 80px 20px 30px 20px; font-size: 0.95rem; border-top: 4px solid var(--azul-ciano);}
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 50px; max-width: 1200px; margin: 0 auto; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 50px; margin-bottom: 30px; }
+        .footer-col h4 { color: white; margin-bottom: 25px; font-size: 1.25rem; font-weight: 600;}
+        .footer-col p { margin-bottom: 15px; display: flex; align-items: flex-start; gap: 12px; line-height: 1.6;}
+        .footer-col i { color: var(--azul-ciano); margin-top: 5px; font-size: 1.1rem;}
+        .footer-bottom { text-align: center; font-size: 0.85rem; color: #688399;}
+        .footer-bottom a { color: var(--laranja-fogo); font-weight: bold; }
+
+        /* --- MOBILE --- */
+        @media (max-width: 768px) {
+            .navbar { padding: 8px 0; }
+            .navbar .container { flex-direction: row; justify-content: space-between; align-items: center; padding: 0 15px; gap: 10px; }
+            .logo-img { max-height: 60px; width: auto; max-width: 180px; }
+            .btn-nav-catalogo { padding: 8px 15px; font-size: 12px; white-space: nowrap; }
+            .btn-nav-catalogo i { display: none; }
+            .hero { padding: 70px 20px 60px 20px; border-bottom-width: 3px; }
+            .hero h1 { font-size: 2.5rem; letter-spacing: -1px; }
+            .hero p { font-size: 1rem; margin-bottom: 30px; }
+            .hero-botoes { flex-direction: column; width: 100%; max-width: 300px; }
+            .btn-hero, .btn-hero-outline { width: 100%; justify-content: center; padding: 15px 20px; font-size: 1rem;}
+            .personalizada-texto h2, .comunidade-texto h2 { font-size: 2.2rem; }
+            .btn-contato { width: 100%; flex: none; padding: 20px; }
+            .personalizada .container, .comunidade .container { flex-direction: column; gap: 40px; }
+            .comunidade .container { flex-direction: column-reverse; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container">
+            <a href="/" class="logo-container">
+                <img src="/logo-benevides.png" alt="Benevides Bikes" class="logo-img">
+            </a>
+            <a href="/catalogo" class="btn-nav-catalogo">
+                <i class="fa-solid fa-store"></i> Ver Catálogo
+            </a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="hero-badge">
+            <i class="fa-solid fa-location-dot"></i> Fortaleza - CE
+        </div>
+
+        <h1>Acelere sua paixão<br>sobre <span>duas rodas</span>.</h1>
+        
+        <p>A sua loja de bicicletas em Fortaleza. Mountain bikes, urbanas e infantis com preços imperdíveis e atendimento do bairro.</p>
+        
+        <div class="hero-botoes">
+            <a href="/catalogo" class="btn-hero">
+                Explorar Bikes <i class="fa-solid fa-arrow-right"></i>
+            </a>
+            <a href="https://wa.me/5585991798930?text=Ol%C3%A1!%20Vim%20pelo%20site%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es." target="_blank" class="btn-hero-outline">
+                <i class="fa-brands fa-whatsapp"></i> Falar com Vendedor
+            </a>
+        </div>
+    </header>
+
+    <section class="diferenciais">
+        <div class="container">
+            <div class="grid-diferenciais">
+                <div class="card-diferencial">
+                    <div class="icon-box"><i class="fa-solid fa-motorcycle"></i></div>
+                    <h3>Delivery Rápido</h3>
+                    <p>Receba sua bike montada e pronta para pedalar em toda Fortaleza e região metropolitana.</p>
+                </div>
+                <div class="card-diferencial">
+                    <div class="icon-box"><i class="fa-solid fa-credit-card"></i></div>
+                    <h3>Facilidade no Pagamento</h3>
+                    <p>Parcele sua bike nova no cartão e saia pedalando hoje mesmo sem complicação.</p>
+                </div>
+                <div class="card-diferencial">
+                    <div class="icon-box"><i class="fa-solid fa-users"></i></div>
+                    <h3>Comunidade</h3>
+                    <p>Mais que uma loja, um ponto de encontro e apoio para quem ama o ciclismo.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="personalizada">
+        <div class="container">
+            <div class="personalizada-texto">
+                <span class="tag-custom">Exclusivo</span>
+                <h2>Sua bike do seu jeito.</h2>
+                <p>Não encontrou a cor ou o modelo dos seus sonhos? Nós montamos a sua bike personalizada. Escolha o quadro, as cores, as peças e nós montamos tudo para você aqui na loja.</p>
+                <p>Do passeio na orla à trilha radical, criamos a máquina perfeita para o seu estilo.</p>
+                <a href="https://wa.me/5585991798930?text=Ol%C3%A1!%20Vi%20o%20site%20e%20gostaria%20de%20fazer%20um%20or%C3%A7amento%20para%20uma%20bike%20personalizada." target="_blank" class="btn-custom">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Montar minha Bike
+                </a>
+            </div>
+            <div class="personalizada-img">
+                <img src="https://images.unsplash.com/photo-1576435728678-68d0fbf94e91?q=80&w=1000&auto=format&fit=crop" alt="Bicicleta Personalizada">
+            </div>
+        </div>
+    </section>
+
+    <section class="comunidade">
+        <div class="container">
+            <div class="comunidade-img">
+                <img src="https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=1000&auto=format&fit=crop" alt="Grupo de ciclistas pedalando">
+            </div>
+            <div class="comunidade-texto">
+                <h2>Mais que uma loja, uma comunidade.</h2>
+                <p>A Benevides Bikes nasceu para apoiar quem pedala. Seja para ir ao trabalho, levar as crianças para a escola ou encarar uma trilha no fim de semana, a gente tem a bike certa para você.</p>
+                <p>Venha fazer parte dos nossos passeios e novidades.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="contato">
+        <div class="container">
+            <h2>Conecte-se com a Benevides</h2>
+            <p>Estamos prontos para te atender, seja online ou na loja física.</p>
+            
+            <div class="grid-contato">
+                <a href="https://wa.me/5585991798930?text=Ol%C3%A1!%20Vim%20pelo%20site%20e%20gostaria%20de%20mais%20informa%C3%A7%C3%B5es." target="_blank" class="btn-contato btn-wa">
+                    <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                </a>
+                
+                <a href="https://www.google.com/maps/search/?api=1&query=Av.+General+Osório+de+Paiva,+3450+-+Parque+São+José,+Fortaleza+-+CE" target="_blank" class="btn-contato btn-map">
+                    <i class="fa-solid fa-map-location-dot"></i> Como Chegar
+                </a>
+                
+                <a href="https://instagram.com/benevidesbikes" target="_blank" class="btn-contato btn-insta">
+                    <i class="fa-brands fa-instagram"></i> Instagram
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Benevides Bikes</h4>
+                <p>Sua loja de bicicletas em Fortaleza. Qualidade, confiança e paixão pelo ciclismo em cada detalhe.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Onde nos encontrar</h4>
+                <p><i class="fa-solid fa-location-dot"></i> Av. General Osório de Paiva, 3450<br>Parque São José - Fortaleza/CE</p>
+                <p><i class="fa-regular fa-clock"></i> Seg a Sex: 09h às 18h<br>Sábado: 09h às 15h</p>
+            </div>
+            <div class="footer-col">
+                <h4>Contato</h4>
+                <p><i class="fa-solid fa-phone"></i> (85) 99179-8930</p>
+                <p><i class="fa-brands fa-instagram"></i> @benevidesbikes</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Benevides Bikes. Todos os direitos reservados.</p>
+            <p>Desenvolvido com orgulho por <a href="#">LH.VIP Soluções Digitais</a></p>
+        </div>
+    </footer>
+
+    <script>
+        function rastrearCliqueHero() {
+            fetch('/eventos', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'tipo=clique_whatsapp'
+            }).catch(e => console.log("Tracking falhou", e));
+        }
+
+        document.getElementById('btn-wa-hero').addEventListener('click', rastrearCliqueHero);
+        document.getElementById('btn-wa-custom').addEventListener('click', rastrearCliqueHero);
+    </script>
+</body>
+</html>
