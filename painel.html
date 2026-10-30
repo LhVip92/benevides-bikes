@@ -6,7 +6,7 @@
     <title>Painel Benevides Bikes</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     
     <style>
         :root { --azul-logo: #38B6D9; --azul-texto: #1B3B5A; --laranja-marca: #F15A24; --cinza-fundo: #F2F4F7; --branco: #FFFFFF; }
@@ -69,6 +69,15 @@
         .foto-info strong { display: block; color: var(--azul-texto); margin-bottom: 5px;}
         .foto-acoes { display: flex; flex-direction: column; gap: 5px; }
         .btn-small { padding: 5px 10px; font-size: 12px; margin: 0; width: auto; }
+        @media (max-width: 640px) {
+            body { padding: 10px; }
+            .card { min-width: 0; width: 100%; padding: 15px; overflow-x: auto; }
+            .header { flex-wrap: wrap; gap: 8px; }
+            .header h1 { font-size: 20px; }
+            .row, .variacao-item { flex-wrap: wrap; }
+            .row > div { min-width: 130px; }
+            .foto-item { flex-wrap: wrap; }
+        }
     </style>
 </head>
 <body>
@@ -86,7 +95,7 @@
                 <label>Nome da Bike:</label>
                 <input type="text" id="nome" required>
 
-                <label>Descrição (Para o Agente IA):</label>
+                <label>Descrição da bike:</label>
                 <input type="text" id="descricao">
                 
                 <div class="row">
@@ -101,21 +110,26 @@
                     </div>
                     <div>
                         <label>Preço à Vista (R$):</label>
-                        <input type="number" step="0.01" id="preco_avista" required>
+                        <input type="number" step="0.01" id="preco_avista" min="0.01" required>
                     </div>
                 </div>
 
                 <div class="row">
                     <div>
                         <label>Preço Parcelado (R$):</label>
-                        <input type="number" step="0.01" id="preco_parcelado" required>
+                        <input type="number" step="0.01" id="preco_parcelado" min="0.01" required>
                     </div>
                     <div>
                         <label>Nº de Parcelas:</label>
-                        <input type="number" id="qtd_parcelas" value="10" required>
+                        <input type="number" id="qtd_parcelas" value="10" min="1" max="36" required>
                     </div>
                 </div>
 
+                <div class="cloud-total" style="display:none;margin:12px 0">
+                    <label for="preco_total_parcelado">Total no cartão (R$, opcional):</label>
+                    <input type="number" step="0.01" id="preco_total_parcelado" min="0.01" max="1000000">
+                    <small>Informe o total exato, por exemplo 299,99 em até 6 vezes. Deixe vazio para calcular pelo valor da parcela.</small>
+                </div>
                 <div class="check-group">
                     <label class="check-item"><input type="checkbox" id="em_promocao" onchange="togglePromocao()"> Em Promoção</label>
                     <label class="check-item"><input type="checkbox" id="em_destaque"> Destaque</label>
@@ -130,7 +144,7 @@
                 <div id="container-variacoes">
                     <div class="variacao-item">
                         <input type="text" name="cor[]" placeholder="Cor (Ex: Rosa)" required>
-                        <input type="file" name="foto[]" accept="image/*" required>
+                        <input type="file" name="foto[]" accept="image/jpeg,image/png,image/webp" required>
                     </div>
                 </div>
                 <button type="button" class="btn-add" onclick="adicionarCor()">+ Adicionar Outra Cor</button>
@@ -168,6 +182,7 @@
         </div>
     </div>
 
+    <script src="/assets/public.js"></script>
     <script>
         let produtosCache = [];
 
@@ -184,7 +199,7 @@
             novaDiv.className = 'variacao-item';
             novaDiv.innerHTML = `
                 <input type="text" name="cor[]" placeholder="Outra Cor">
-                <input type="file" name="foto[]" accept="image/*">
+                <input type="file" name="foto[]" accept="image/jpeg,image/png,image/webp">
                 <button type="button" onclick="this.parentElement.remove()" style="width: auto; padding: 5px 10px; margin:0; background: #999; font-size: 12px;">X</button>
             `;
             container.appendChild(novaDiv);
@@ -194,7 +209,7 @@
             try {
                 const resposta = await fetch('/admin/produtos', {
                     cache: 'no-store',
-                    headers: { 'Authorization': 'Basic ' + btoa('admin_benevides:Benevi2026!') }
+                    headers: { 'X-Benevides-Admin': '1' }
                 });
                 if (!resposta.ok) throw new Error("Erro de autenticação");
 
@@ -208,14 +223,14 @@
                 }
 
                 produtosCache.forEach(p => {
-                    let imgHTML = (p.variacoes && p.variacoes.length > 0) ? `<img src="${p.variacoes[0].imagem_url}" class="img-preview">` : 'Sem foto';
+                    let imgHTML = (p.variacoes && p.variacoes.length > 0) ? `<img src="${escapeHtml(safeImageUrl(p.variacoes[0].imagem_url))}" class="img-preview">` : 'Sem foto';
                     
                     let tagsHTML = '';
                     if (!p.ativo) tagsHTML += `<span class="badge bg-inativo">OCULTA</span>`;
                     if (p.em_promocao) tagsHTML += `<span class="badge bg-promo">PROMOÇÃO</span>`;
                     if (p.em_destaque) tagsHTML += `<span class="badge bg-destaque">DESTAQUE</span>`;
 
-                    let precoHTML = `R$ ${p.preco_avista.toFixed(2)}<br><small>${p.qtd_parcelas}x R$ ${p.preco_parcelado.toFixed(2)}</small>`;
+                    let precoHTML = `R$ ${p.preco_avista.toFixed(2)}<br><small>${p.preco_total_parcelado != null ? `Total cartão: R$ ${p.preco_total_parcelado.toFixed(2)} em até ${p.qtd_parcelas}x` : `${p.qtd_parcelas}x R$ ${p.preco_parcelado.toFixed(2)}`}</small>`;
                     if (p.em_promocao && p.preco_promocional) {
                         precoHTML = `<span class="preco-riscado">De: R$ ${p.preco_avista.toFixed(2)}</span>
                                      <strong style="color:var(--laranja-marca); font-size:14px;">Por: R$ ${p.preco_promocional.toFixed(2)}</strong>`;
@@ -224,7 +239,7 @@
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${imgHTML}</td>
-                        <td><strong>${p.nome}</strong><br><small>${p.categoria}</small></td>
+                        <td><strong>${escapeHtml(p.nome)}</strong><br><small>${escapeHtml(p.categoria)}</small></td>
                         <td>${precoHTML}</td>
                         <td>${tagsHTML}</td>
                         <td>
@@ -247,7 +262,7 @@
                     tbody.appendChild(tr);
                 });
             } catch (error) {
-                console.error("Erro:", error);
+                alert('Não foi possível carregar o painel. Recarregue a página e confira o login.');
             }
         }
 
@@ -265,10 +280,10 @@
                     const div = document.createElement('div');
                     div.className = 'foto-item';
                     div.innerHTML = `
-                        <img src="${v.imagem_url}" alt="${v.cor}">
+                        <img src="${escapeHtml(safeImageUrl(v.imagem_url))}" alt="${escapeHtml(v.cor)}">
                         <div class="foto-info">
-                            <strong>${v.cor}</strong>
-                            <input type="file" id="file-var-${v.id}" accept="image/*" style="padding: 5px; font-size: 12px;">
+                            <strong>${escapeHtml(v.cor)}</strong>
+                            <input type="file" id="file-var-${v.id}" accept="image/jpeg,image/png,image/webp" style="padding: 5px; font-size: 12px;">
                         </div>
                         <div class="foto-acoes">
                             <button class="btn-acao btn-fotos btn-small" onclick="substituirFoto(${v.id})" title="Substituir Foto">
@@ -301,7 +316,7 @@
 
             const resposta = await fetch(`/admin/variacoes/${variacaoId}`, {
                 method: 'PUT',
-                headers: { 'Authorization': 'Basic ' + btoa('admin_benevides:Benevi2026!') },
+                headers: { 'X-Benevides-Admin': '1' },
                 body: formData
             });
 
@@ -319,7 +334,7 @@
 
             const resposta = await fetch(`/admin/variacoes/${variacaoId}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': 'Basic ' + btoa('admin_benevides:Benevi2026!') }
+                headers: { 'X-Benevides-Admin': '1' }
             });
 
             if (resposta.ok) {
@@ -334,7 +349,7 @@
         async function alternarVisibilidade(id) {
             const resposta = await fetch(`/admin/produtos/${id}/toggle`, {
                 method: 'PATCH',
-                headers: { 'Authorization': 'Basic ' + btoa('admin_benevides:Benevi2026!') }
+                headers: { 'X-Benevides-Admin': '1' }
             });
             if (resposta.ok) carregarProdutos(); 
         }
@@ -343,7 +358,7 @@
             if (!confirm("Tem certeza que deseja excluir esta bike INTEIRA?")) return;
             const resposta = await fetch(`/admin/produtos/${id}`, {
                 method: 'DELETE',
-                headers: { 'Authorization': 'Basic ' + btoa('admin_benevides:Benevi2026!') }
+                headers: { 'X-Benevides-Admin': '1' }
             });
             if (resposta.ok) { alert("Bike excluída!"); carregarProdutos(); }
         }
@@ -364,6 +379,7 @@
             document.getElementById('preco_avista').value = produto.preco_avista;
             document.getElementById('preco_parcelado').value = produto.preco_parcelado;
             document.getElementById('qtd_parcelas').value = produto.qtd_parcelas;
+            document.getElementById('preco_total_parcelado').value = produto.preco_total_parcelado ?? '';
             
             document.getElementById('em_promocao').checked = produto.em_promocao;
             document.getElementById('em_destaque').checked = produto.em_destaque;
@@ -378,7 +394,7 @@
             document.getElementById('container-variacoes').innerHTML = `
                 <div class="variacao-item">
                     <input type="text" name="cor[]" placeholder="Nova Cor (Opcional)">
-                    <input type="file" name="foto[]" accept="image/*">
+                    <input type="file" name="foto[]" accept="image/jpeg,image/png,image/webp">
                 </div>
             `;
 
@@ -397,7 +413,7 @@
             document.getElementById('container-variacoes').innerHTML = `
                 <div class="variacao-item">
                     <input type="text" name="cor[]" placeholder="Cor" required>
-                    <input type="file" name="foto[]" accept="image/*" required>
+                    <input type="file" name="foto[]" accept="image/jpeg,image/png,image/webp" required>
                 </div>
             `;
         }
@@ -407,6 +423,10 @@
         document.getElementById('formProduto').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const submitButton = document.getElementById('btn-submit');
+            if (submitButton.disabled) return;
+            submitButton.disabled = true;
+            try {
             const editId = document.getElementById('edit_id').value;
             const formData = new FormData();
             formData.append('nome', document.getElementById('nome').value);
@@ -415,6 +435,7 @@
             formData.append('preco_avista', document.getElementById('preco_avista').value);
             formData.append('preco_parcelado', document.getElementById('preco_parcelado').value);
             formData.append('qtd_parcelas', document.getElementById('qtd_parcelas').value);
+            formData.append('preco_total_parcelado', document.getElementById('preco_total_parcelado').value);
             formData.append('em_promocao', document.getElementById('em_promocao').checked);
             formData.append('em_destaque', document.getElementById('em_destaque').checked);
             
@@ -426,12 +447,18 @@
             const fotosInputs = document.querySelectorAll('input[name="foto[]"]');
 
             if (editId) {
-                coresInputs.forEach(input => { if(input.value) formData.append('novas_cores', input.value); });
-                fotosInputs.forEach(input => { if (input.files.length > 0) formData.append('novos_files', input.files[0]); });
+                for (const row of document.querySelectorAll('.variacao-item')) {
+                    const color = row.querySelector('input[type=text]').value.trim();
+                    const file = row.querySelector('input[type=file]').files[0];
+                    if (!color && !file) continue;
+                    if (!color || !file) { alert('Preencha a cor e a foto na mesma linha.'); return; }
+                    formData.append('novas_cores', color);
+                    formData.append('novos_files', file);
+                }
 
                 const resposta = await fetch(`/admin/produtos/${editId}`, {
                     method: 'PUT',
-                    headers: { 'Authorization': 'Basic ' + btoa('admin_benevides:Benevi2026!') },
+                    headers: { 'X-Benevides-Admin': '1' },
                     body: formData 
                 });
 
@@ -440,7 +467,7 @@
                     cancelarEdicao();
                     carregarProdutos(); 
                 } else {
-                    alert('Erro ao atualizar.');
+                    alert(await mensagemErro(resposta));
                 }
 
             } else {
@@ -449,7 +476,7 @@
 
                 const resposta = await fetch('/admin/produtos', {
                     method: 'POST',
-                    headers: { 'Authorization': 'Basic ' + btoa('admin_benevides:Benevi2026!') },
+                    headers: { 'X-Benevides-Admin': '1' },
                     body: formData 
                 });
 
@@ -458,10 +485,22 @@
                     cancelarEdicao();
                     carregarProdutos(); 
                 } else {
-                    alert('Erro ao cadastrar.');
+                    alert(await mensagemErro(resposta));
                 }
             }
+            } catch (_) {
+                alert('A conexão foi interrompida. Confira a lista antes de tentar salvar novamente.');
+            } finally {
+                submitButton.disabled = false;
+            }
         });
+
+        async function mensagemErro(resposta) {
+            try {
+                const dados = await resposta.json();
+                return typeof dados.detail === 'string' ? dados.detail : 'Confira os campos, os preços e os arquivos enviados.';
+            } catch (_) { return 'Não foi possível salvar. Tente novamente.'; }
+        }
     </script>
 </body>
 </html>

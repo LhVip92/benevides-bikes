@@ -7,10 +7,10 @@
     
     <!-- Fontes e Ícones -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
     
     <!-- Biblioteca de Gráficos -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/assets/chart.umd.js"></script>
 
     <style>
         :root {
@@ -135,7 +135,7 @@
             try {
                 // Busca os dados no Python (Passando a senha de admin)
                 const res = await fetch('/admin/dashboard', {
-                    headers: { 'Authorization': 'Basic ' + btoa('admin_benevides:Benevi2026!') }
+                    headers: { 'X-Benevides-Admin': '1' }
                 });
                 
                 if (!res.ok) throw new Error("Erro de autenticação");

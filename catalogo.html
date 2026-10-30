@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Confira bicicletas, cores e preços da Benevides Bikes em Fortaleza. Consulte disponibilidade e entrega pelo WhatsApp.">
+    <meta name="theme-color" content="#1B3B5A">
     <title>Catálogo - Benevides Bikes</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
 
     <style>
         :root {
@@ -42,7 +43,7 @@
         .destaque { color: var(--laranja-marca); font-weight: 700; }
 
         /* --- BARRA DE PESQUISA --- */
-        .search-container { max-width: 800px; margin: 0 auto 20px auto; padding: 0 20px; position: relative; }
+        .search-container { width: 100%; max-width: 800px; margin: 0 auto 20px auto; padding: 0 20px; position: relative; }
         .search-input { width: 100%; padding: 16px 20px 16px 50px; border: 2px solid #e1e4e8; border-radius: 50px; font-family: 'Poppins', sans-serif; font-size: 15px; outline: none; transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .search-input:focus { border-color: var(--azul-logo); box-shadow: 0 4px 20px rgba(56, 182, 217, 0.15); }
         .search-icon { position: absolute; left: 40px; top: 50%; transform: translateY(-50%); color: #999; font-size: 18px; }
@@ -58,9 +59,9 @@
         .btn-filtro.ativo { background: var(--azul-logo); color: white; border-color: var(--azul-logo); font-weight: 600; box-shadow: 0 6px 15px rgba(56, 182, 217, 0.3); }
 
         /* --- GRID E CARDS --- */
-        .grid-produtos { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 30px; padding: 0 20px; max-width: 1200px; margin: 0 auto; flex: 1; }
+        .grid-produtos { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 30px; padding: 0 20px; width: 100%; min-width: 0; max-width: 1200px; margin: 0 auto; flex: 1; }
         
-        .card { background: var(--branco); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.06); display: flex; flex-direction: column; transition: all 0.4s ease; position: relative; border: 1px solid rgba(0,0,0,0.03);}
+        .card { min-width: 0; background: var(--branco); border-radius: 16px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.06); display: flex; flex-direction: column; transition: all 0.4s ease; position: relative; border: 1px solid rgba(0,0,0,0.03);}
         .card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
         
         .img-container { position: relative; width: 100%; height: 240px; background: #fcfcfc; padding: 20px; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #f0f0f0; cursor: zoom-in;}
@@ -152,13 +153,26 @@
             .search-icon { left: 35px; font-size: 16px; }
             .aviso-lgpd { font-size: 10px; padding: 15px; }
         }
+        @media (max-width: 420px) {
+            .grid-produtos { grid-template-columns: minmax(0, 1fr); padding: 0 15px; gap: 22px; }
+            .img-container { height: 250px; padding: 20px; }
+            .card-content { padding: 20px; }
+            .card-titulo { font-size: 17px; }
+            .preco-vista { font-size: 24px; }
+            .preco-parcelado { font-size: 14px; }
+            .btn-whats { min-height: 48px; }
+            .selos { display: flex; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation: none !important; transition: none !important; }
+        }
     </style>
 </head>
 <body>
 
     <header class="header">
         <div class="header-top">
-            <a href="/" class="btn-voltar" title="Voltar ao site"><i class="fa-solid fa-arrow-left"></i></a>
+            <a href="/" class="btn-voltar" title="Voltar ao site" aria-label="Voltar ao site">←</a>
             <img src="/logo-benevides.png" alt="Benevides Bikes" class="logo-catalogo">
         </div>
         <h2>Catálogo Oficial</h2>
@@ -171,7 +185,7 @@
 
     <div class="search-container">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input type="text" id="inputBusca" class="search-input" placeholder="Pesquisar por nome, marca ou cor...">
+        <input type="text" id="inputBusca" aria-label="Pesquisar bicicletas" class="search-input" placeholder="Pesquisar por nome, marca ou cor...">
     </div>
 
     <div class="filtros-container">
@@ -184,214 +198,21 @@
         </div>
     </div>
 
-    <div class="grid-produtos" id="catalogo">
+    <div class="grid-produtos" id="catalogo" aria-live="polite">
         <div class="vazio"><i class="fa-solid fa-spinner fa-spin fa-2x" style="color: var(--azul-logo)"></i><br><br>Carregando o catálogo...</div>
     </div>
 
     <!-- NOVO: AVISO DE LGPD -->
     <div class="aviso-lgpd">
-        <p><strong>Aviso de Privacidade (LGPD):</strong> Ao navegar por nosso catálogo, coletamos dados anônimos de navegação (visualizações e cliques) para melhorar continuamente sua experiência de compra. Ao clicar em "Pedir no WhatsApp", você será direcionado para o aplicativo de mensagens para concluir seu pedido junto à nossa equipe.</p>
+        <p><strong>Aviso de Privacidade (LGPD):</strong> Registramos contagens de visitas e cliques para acompanhar o uso do catálogo, sem solicitar nome, telefone ou localização neste site. Ao clicar em "Pedir no WhatsApp", você será direcionado para o aplicativo de mensagens para concluir seu pedido junto à nossa equipe.</p>
     </div>
 
-    <div id="lightbox" class="lightbox" onclick="fecharLightbox(event)">
-        <span class="close-lightbox" onclick="fecharLightbox(event)">&times;</span>
-        <img class="lightbox-content" id="img-lightbox">
+    <div id="lightbox" class="lightbox" role="dialog" aria-label="Foto ampliada da bicicleta" aria-hidden="true" onclick="fecharLightbox(event)">
+        <button type="button" class="close-lightbox" aria-label="Fechar foto" style="background:none;border:0" onclick="fecharLightbox(event)">&times;</button>
+        <img class="lightbox-content" id="img-lightbox" alt="Foto ampliada da bicicleta">
     </div>
 
-    <script>
-        const numeroWhatsapp = "5585991798930"; 
-        let todosOsProdutos = [];
-        let categoriaAtual = 'Todos';
-        let termoBusca = '';
-
-        fetch('/eventos', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'tipo=visita_catalogo'
-        }).catch(e => console.log("Tracking falhou", e));
-
-        async function carregarCatalogo() {
-            try {
-                const resposta = await fetch('/produtos');
-                todosOsProdutos = await resposta.json();
-                aplicarFiltros();
-            } catch (erro) {
-                console.error("Erro:", erro);
-                document.getElementById('catalogo').innerHTML = '<div class="vazio">Erro ao carregar.</div>';
-            }
-        }
-
-        function aplicarFiltros() {
-            let filtrados = todosOsProdutos;
-
-            if (categoriaAtual !== 'Todos') {
-                filtrados = filtrados.filter(p => p.categoria.toLowerCase() === categoriaAtual.toLowerCase());
-            }
-
-            if (termoBusca.trim() !== '') {
-                const termo = termoBusca.toLowerCase().trim();
-                filtrados = filtrados.filter(p => {
-                    const matchNome = p.nome.toLowerCase().includes(termo);
-                    const matchDesc = p.descricao ? p.descricao.toLowerCase().includes(termo) : false;
-                    const matchCor = p.variacoes ? p.variacoes.some(v => v.cor.toLowerCase().includes(termo)) : false;
-                    return matchNome || matchDesc || matchCor;
-                });
-            }
-
-            renderizarProdutos(filtrados);
-        }
-
-        function renderizarProdutos(produtos) {
-            const grid = document.getElementById('catalogo');
-            grid.innerHTML = '';
-
-            if (produtos.length === 0) {
-                grid.innerHTML = '<div class="vazio">Nenhuma bike encontrada com esses filtros.</div>';
-                return;
-            }
-
-            produtos.forEach(produto => {
-                const precoAvistaFormatado = produto.preco_avista.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                const precoParceladoFormatado = produto.preco_parcelado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                
-                let precoHTML = '';
-                let precoParaWhatsApp = precoAvistaFormatado;
-
-                if (produto.em_promocao && produto.preco_promocional) {
-                    const precoPromoFormatado = produto.preco_promocional.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                    const parcelaPromo = (produto.preco_promocional / produto.qtd_parcelas).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-                    
-                    precoHTML = `
-                        <span class="preco-original-riscado">De: ${precoAvistaFormatado}</span>
-                        <div class="preco-promocional">Por: ${precoPromoFormatado}</div>
-                        <div class="preco-parcelado">ou ${produto.qtd_parcelas}x de ${parcelaPromo}</div>
-                    `;
-                    precoParaWhatsApp = precoPromoFormatado; 
-                } else {
-                    const totalParcelado = produto.preco_parcelado * produto.qtd_parcelas;
-                    const textoJuros = totalParcelado > produto.preco_avista ? " com juros" : " sem juros";
-
-                    precoHTML = `
-                        <div class="preco-vista">${produto.qtd_parcelas} x ${precoParceladoFormatado}</div>
-                        <div class="preco-parcelado">ou ${precoAvistaFormatado} à vista${textoJuros}</div>
-                    `;
-                }
-                
-                let variacoes = produto.variacoes && produto.variacoes.length > 0 
-                                ? produto.variacoes 
-                                : [{ cor: 'Padrão', imagem_url: 'https://via.placeholder.com/300x200?text=Sem+Foto' }];
-                
-                let imagemPrincipal = variacoes[0].imagem_url;
-                let corInicial = variacoes[0].cor;
-                
-                let botoesCoresHTML = '';
-                if (variacoes.length > 1) {
-                    botoesCoresHTML = variacoes.map((v, index) => `
-                        <button class="btn-cor ${index === 0 ? 'ativo' : ''}" onclick="mudarCor(${produto.id}, '${v.imagem_url}', '${v.cor}', this, '${precoParaWhatsApp}')">
-                            ${v.cor}
-                        </button>
-                    `).join('');
-                } else if (variacoes.length === 1 && variacoes[0].cor !== 'Padrão') {
-                    botoesCoresHTML = `<span class="btn-cor ativo" style="cursor: default;">${variacoes[0].cor}</span>`;
-                }
-
-                let tagPromoHTML = produto.em_promocao ? `<span class="tag-promo">Oferta!</span>` : '';
-
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div class="img-container" onclick="abrirLightbox(${produto.id})">
-                        <img src="${imagemPrincipal}" id="img-${produto.id}" class="card-img" alt="${produto.nome}">
-                        <span class="tag-categoria">${produto.categoria}</span>
-                        ${tagPromoHTML}
-                    </div>
-                    <div class="card-content">
-                        <h3 class="card-titulo">${produto.nome}</h3>
-                        
-                        <div class="container-cores">
-                            ${botoesCoresHTML}
-                        </div>
-                        
-                        <div class="selos">
-                            <span class="selo selo-frete"><i class="fa-solid fa-motorcycle"></i> Entrega</span>
-                            <span class="selo selo-garantia"><i class="fa-solid fa-shield-halved"></i> Garantia</span>
-                        </div>
-
-                        <div class="preco-bloco">
-                            ${precoHTML}
-                        </div>
-                        
-                        <a href="#" id="btn-whats-${produto.id}" onclick="rastrearClique(${produto.id})" target="_blank" class="btn-whats">
-                            <i class="fa-brands fa-whatsapp"></i> Pedir no WhatsApp
-                        </a>
-                    </div>
-                `;
-                grid.appendChild(card);
-                
-                atualizarLinkWhats(produto.id, produto.nome, precoParaWhatsApp, corInicial);
-            });
-        }
-
-        function abrirLightbox(produtoId) {
-            const lightbox = document.getElementById('lightbox');
-            const imgLightbox = document.getElementById('img-lightbox');
-            const imagemAtualDoCard = document.getElementById(`img-${produtoId}`).src;
-            imgLightbox.src = imagemAtualDoCard;
-            lightbox.classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function fecharLightbox(e) {
-            if (e) e.stopPropagation(); 
-            const lightbox = document.getElementById('lightbox');
-            if (!e || e.target.id === 'lightbox' || e.target.className === 'close-lightbox') {
-                lightbox.classList.remove('show');
-                document.body.style.overflow = 'auto'; 
-            }
-        }
-
-        function mudarCor(produtoId, novaImagem, novaCor, botaoClicado, precoAtual) {
-            document.getElementById(`img-${produtoId}`).src = novaImagem;
-            const lightbox = document.getElementById('lightbox');
-            if(lightbox.classList.contains('show')) {
-                document.getElementById('img-lightbox').src = novaImagem;
-            }
-            const container = botaoClicado.parentElement;
-            container.querySelectorAll('.btn-cor').forEach(btn => btn.classList.remove('ativo'));
-            botaoClicado.classList.add('ativo');
-
-            const card = botaoClicado.closest('.card');
-            const nomeBike = card.querySelector('.card-titulo').innerText;
-            atualizarLinkWhats(produtoId, nomeBike, precoAtual, novaCor);
-        }
-
-        function atualizarLinkWhats(id, nomeBike, preco, cor) {
-            const textoWhats = `Olá! Vi a *${nomeBike}* (Cor: ${cor}) no catálogo por ${preco} e gostaria de fazer o pedido. Como fica a taxa de entrega?`;
-            const linkWhats = `https://wa.me/${numeroWhatsapp}?text=${encodeURIComponent(textoWhats)}`;
-            document.getElementById(`btn-whats-${id}`).href = linkWhats;
-        }
-
-        function rastrearClique(produtoId) {
-            fetch('/eventos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `tipo=clique_whatsapp&produto_id=${produtoId}`
-            }).catch(e => console.log("Tracking falhou", e));
-        }
-
-        function filtrar(categoria, botaoClicado) {
-            document.querySelectorAll('.btn-filtro').forEach(btn => btn.classList.remove('ativo'));
-            botaoClicado.classList.add('ativo');
-            categoriaAtual = categoria;
-            aplicarFiltros();
-        }
-
-        document.getElementById('inputBusca').addEventListener('input', (e) => {
-            termoBusca = e.target.value;
-            aplicarFiltros();
-        });
-
-        carregarCatalogo();
-    </script>
+    <script src="/assets/public.js"></script>
+    <script src="/assets/catalogo.js"></script>
 </body>
 </html>

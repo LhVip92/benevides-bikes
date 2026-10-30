@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from banco import Base
-from datetime import datetime
+from datetime import datetime, timezone
 
 class Produto(Base):
     __tablename__ = "produtos"
@@ -36,4 +36,4 @@ class Evento(Base):
     id = Column(Integer, primary_key=True, index=True)
     tipo = Column(String, index=True) 
     produto_id = Column(Integer, ForeignKey("produtos.id"), nullable=True) 
-    data_hora = Column(DateTime, default=datetime.utcnow)
+    data_hora = Column(DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))

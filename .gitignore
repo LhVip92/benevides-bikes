@@ -4,3 +4,22 @@ __pycache__/
 benevides.db
 fotos/
 ngrok.exe
+.venv/
+.pytest_cache/
+*.db-wal
+*.db-shm
+backups/
+dist-publico/
+test-results/
+node_modules/
+dist-cloud/
+
+# Configurações privadas e dados locais
+.env.*
+!.env.example
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+dist-cloud-*/
