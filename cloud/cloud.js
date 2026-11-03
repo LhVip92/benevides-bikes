@@ -122,28 +122,84 @@
         if (event === 'SIGNED_OUT' && document.getElementById('cloud-admin-bar')) location.reload();
     });
 
+    // Aceita JPG, PNG, WebP, HEIC/HEIF e AVIF. Rejeita SVG e outros formatos.
+    // HEIC/HEIF são decodificados nativamente pelo <img> no iOS Safari.
+    const allowedMime = /^image\/(jpeg|png|webp|heic|heif|avif)$/i;
+    const allowedExt = /\.(jpe?g|png|webp|heic|heif|avif)$/i;
+
     async function normalizeImage(file) {
-        if (!(file instanceof File) || !/\.(jpe?g|png|webp)$/i.test(file.name)) throw fail('Envie uma foto JPG, PNG ou WebP.');
-        if (file.size > 8 * 1024 * 1024) throw fail('Cada imagem deve ter no máximo 8 MB.', 413);
+        if (!(file instanceof File)) {
+            throw fail('Nenhum arquivo recebido.');
+        }
+        const hasImageMime = (file.type && allowedMime.test(file.type));
+        const hasImageExt = allowedExt.test(file.name || '');
+        if (!hasImageMime && !hasImageExt) {
+            throw fail('Envie uma foto (JPG, PNG, WebP ou HEIC).');
+        }
+        if (file.size === 0) {
+            throw fail('O arquivo está vazio. Escolha outra foto.');
+        }
+        if (file.size > 8 * 1024 * 1024) {
+            throw fail('Cada imagem deve ter no máximo 8 MB.', 413);
+        }
+
+        // <img> em vez de createImageBitmap:
+        // - decodifica HEIC/HEIF nativamente no iOS Safari;
+        // - aplica orientação EXIF automaticamente no canvas;
+        // - evita a opção imageOrientation:'from-image', não suportada no Safari antigo.
+        const objectUrl = URL.createObjectURL(file);
         let image;
-        try { image = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
-        catch (_) { throw fail('Não foi possível abrir esta foto. Envie uma imagem válida.'); }
         try {
-            if (image.width * image.height > 20_000_000) throw fail('A foto deve ter até 20 megapixels.');
-            const ratio = Math.min(1, 1800 / image.width, 1800 / image.height);
+            image = await new Promise((resolve, reject) => {
+                const img = new Image();
+                img.decoding = 'async';
+                img.onload = () => resolve(img);
+                img.onerror = () => reject(fail('Não foi possível abrir esta foto. Envie uma imagem válida.'));
+                img.src = objectUrl;
+            });
+        } catch (error) {
+            URL.revokeObjectURL(objectUrl);
+            throw error;
+        }
+
+        try {
+            const width = image.naturalWidth || image.width;
+            const height = image.naturalHeight || image.height;
+            if (!width || !height) throw fail('Não foi possível ler o tamanho da foto.');
+            if (width * height > 20_000_000) {
+                throw fail('A foto deve ter até 20 megapixels.');
+            }
+
+            const ratio = Math.min(1, 1800 / width, 1800 / height);
             const canvas = document.createElement('canvas');
-            canvas.width = Math.max(1, Math.round(image.width * ratio));
-            canvas.height = Math.max(1, Math.round(image.height * ratio));
-            canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
-            const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', 0.85));
-            if (!blob || blob.type !== 'image/webp') throw fail('Atualize o navegador para enviar esta foto.');
-            return blob;
-        } finally { image.close(); }
+            canvas.width = Math.max(1, Math.round(width * ratio));
+            canvas.height = Math.max(1, Math.round(height * ratio));
+            const ctx = canvas.getContext('2d');
+            if (!ctx) throw fail('Não foi possível processar a foto neste navegador.');
+            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+            const toBlob = (type, quality) => new Promise(resolve => {
+                canvas.toBlob(resolve, type, quality);
+            });
+
+            // WebP é o preferido (menor tamanho). JPEG cobre iOS 13 e navegadores antigos.
+            const webp = await toBlob('image/webp', 0.85);
+            if (webp && webp.type === 'image/webp') return webp;
+
+            const jpeg = await toBlob('image/jpeg', 0.85);
+            if (jpeg && jpeg.type === 'image/jpeg') return jpeg;
+
+            throw fail('Não foi possível preparar a foto. Atualize o navegador.');
+        } finally {
+            URL.revokeObjectURL(objectUrl);
+        }
     }
+
     async function uploadImage(file) {
         const blob = await normalizeImage(file);
-        const path = `produtos/${crypto.randomUUID()}.webp`;
-        check(await bucket.upload(path, blob, { contentType: 'image/webp', upsert: false, cacheControl: '31536000' }));
+        const extension = blob.type === 'image/webp' ? 'webp' : 'jpg';
+        const path = `produtos/${crypto.randomUUID()}.${extension}`;
+        check(await bucket.upload(path, blob, { contentType: blob.type, upsert: false, cacheControl: '31536000' }));
         return path;
     }
     function productData(body) {
