@@ -11,9 +11,6 @@
     
     <!-- Biblioteca de Gráficos -->
     <script src="/assets/chart.umd.js"></script>
-    
-    <!-- SDK do Supabase -->
-    <script src="/vendor/supabase-2.118.0.js"></script>
 
     <style>
         :root {
@@ -44,6 +41,7 @@
         .card-metrica { background: var(--branco); padding: 30px; border-radius: 12px; box-shadow: var(--sombra); display: flex; align-items: center; gap: 20px; position: relative; overflow: hidden; transition: transform 0.3s;}
         .card-metrica:hover { transform: translateY(-5px); }
         
+        /* Linha decorativa no topo de cada card */
         .card-metrica::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--azul-logo); }
         .card-metrica.laranja::before { background: var(--laranja-marca); }
         .card-metrica.verde::before { background: #25D366; }
@@ -71,8 +69,9 @@
         .card-insight h3 { color: white; font-size: 20px; margin-bottom: 10px;}
         .card-insight p { color: #a0b2c6; font-size: 14px; line-height: 1.6; }
 
-        /* Loading state */
-        .loading { opacity: 0.5; pointer-events: none; }
+        /* Estado de Erro Visível */
+        .error-banner { grid-column: 1/-1; background: #fff0f0; border: 1px solid #ffcccc; color: #cc0000; padding: 20px; border-radius: 8px; margin-bottom: 20px; display: none; align-items: center; gap: 10px; font-weight: 500;}
+        .error-banner i { font-size: 20px; }
     </style>
 </head>
 <body>
@@ -84,8 +83,14 @@
             <a href="/painel/" class="btn-voltar"><i class="fa-solid fa-arrow-left"></i> Voltar ao Painel</a>
         </div>
 
+        <!-- Banner de Erro (oculto por padrão) -->
+        <div class="error-banner" id="error-banner">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span id="error-message">Erro ao carregar dados.</span>
+        </div>
+
         <!-- Métricas Principais -->
-        <div class="metricas" id="metricas-container">
+        <div class="metricas">
             <div class="card-metrica">
                 <div class="icon-metrica"><i class="fa-solid fa-eye"></i></div>
                 <div class="info-metrica">
@@ -132,81 +137,63 @@
 
     <script>
         const corLaranja = '#F15A24';
-        const corAzul = '#1B3B5A';
+        let chartInstance = null; // Variável para armazenar a instância do gráfico e evitar duplicações
 
         async function carregarDashboard() {
-            const containerMetricas = document.getElementById('metricas-container');
-            containerMetricas.classList.add('loading');
+            const bannerErro = document.getElementById('error-banner');
+            const msgErro = document.getElementById('error-message');
+            bannerErro.style.display = 'none'; // Esconde erro anterior
 
             try {
-                // 1. Carrega as configurações do Supabase (URL e Anon Key)
-                const configRes = await fetch('/config.json');
-                if (!configRes.ok) throw new Error("Arquivo config.json não encontrado.");
-                const config = await configRes.json();
+                // O adaptador (cloud.js) intercepta isso no Cloudflare.
+                // No modo local (Python), o header garante a autenticação.
+                const res = await fetch('/admin/dashboard', {
+                    headers: { 'X-Benevides-Admin': '1' }
+                });
                 
-                // 2. Inicializa o cliente Supabase
-                // O SDK global é criado pela tag <script> no <head>
-                const supabaseClient = supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
-
-                // 3. Busca todos os eventos do banco
-                const { data: eventos, error: errEventos } = await supabaseClient
-                    .from('eventos')
-                    .select('tipo, produto_id');
+                if (!res.ok) {
+                    if (res.status === 401 || res.status === 403) {
+                        throw new Error("Sessão expirada ou acesso não autorizado. Faça login novamente.");
+                    }
+                    throw new Error("Falha de comunicação com o servidor.");
+                }
                 
-                if (errEventos) throw errEventos;
+                const data = await res.json();
 
-                // 4. Calcula métricas básicas
-                const visitas = eventos.filter(e => e.tipo === 'visita_catalogo').length;
-                const cliques = eventos.filter(e => e.tipo === 'clique_whatsapp').length;
+                // 1. Preencher os cartões numéricos
+                document.getElementById('metrica-visitas').innerText = data.visitas;
+                document.getElementById('metrica-cliques').innerText = data.cliques_whatsapp;
 
-                document.getElementById('metrica-visitas').innerText = visitas;
-                document.getElementById('metrica-cliques').innerText = cliques;
-
-                // 5. Calcula a taxa de interesse
-                let taxa = visitas > 0 ? ((cliques / visitas) * 100).toFixed(1) : 0;
+                // 2. Calcular e preencher a Taxa de Interesse
+                let taxa = data.visitas > 0 ? ((data.cliques_whatsapp / data.visitas) * 100).toFixed(1) : 0;
                 document.getElementById('metrica-taxa').innerText = taxa + '%';
 
-                // 6. Busca os nomes dos produtos para cruzar com os eventos
-                const { data: produtos, error: errProdutos } = await supabaseClient
-                    .from('produtos')
-                    .select('id, nome');
-                    
-                if (errProdutos) throw errProdutos;
-
-                // 7. Monta o Top 5 Produtos
-                const cliquesPorProduto = {};
-                eventos.filter(e => e.tipo === 'clique_whatsapp' && e.produto_id).forEach(e => {
-                    cliquesPorProduto[e.produto_id] = (cliquesPorProduto[e.produto_id] || 0) + 1;
-                });
-
-                const topProdutos = Object.keys(cliquesPorProduto).map(id => {
-                    const prod = produtos.find(p => p.id == id);
-                    return { 
-                        nome: prod ? prod.nome : 'Produto Excluído', 
-                        cliques: cliquesPorProduto[id] 
-                    };
-                }).sort((a, b) => b.cliques - a.cliques).slice(0, 5);
-
-                // 8. Renderiza o Gráfico com Chart.js
-                const nomes = topProdutos.map(p => p.nome.length > 25 ? p.nome.substring(0, 25) + '...' : p.nome);
-                const cliquesData = topProdutos.map(p => p.cliques);
+                // 3. Montar o Gráfico de Barras (Top Produtos)
+                const nomes = data.top_produtos.map(p => p.nome.length > 25 ? p.nome.substring(0, 25) + '...' : p.nome);
+                const cliques = data.top_produtos.map(p => p.cliques);
 
                 const ctx = document.getElementById('graficoProdutos').getContext('2d');
                 
+                // Se não houver dados, exibe uma mensagem no gráfico
                 if (nomes.length === 0) {
                     nomes.push("Nenhum clique registrado ainda");
-                    cliquesData.push(0);
+                    cliques.push(0);
                 }
 
-                new Chart(ctx, {
+                // DESTRÓI o gráfico anterior se ele existir, para evitar sobreposição
+                if (chartInstance) {
+                    chartInstance.destroy();
+                }
+
+                chartInstance = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: nomes,
                         datasets: [{
                             label: 'Cliques no WhatsApp',
-                            data: cliquesData,
+                            data: cliques,
                             backgroundColor: corLaranja,
-                            borderRadius: 8,
+                            borderRadius: 8, 
                             barThickness: 40
                         }]
                     },
@@ -216,7 +203,7 @@
                         plugins: { 
                             legend: { display: false },
                             tooltip: {
-                                backgroundColor: corAzul,
+                                backgroundColor: '#1B3B5A',
                                 titleFont: { family: 'Poppins', size: 14 },
                                 bodyFont: { family: 'Poppins', size: 14 },
                                 padding: 10,
@@ -238,12 +225,9 @@
                 });
 
             } catch (e) {
-                console.error("Erro ao carregar dashboard:", e);
-                document.getElementById('metrica-visitas').innerText = "Erro";
-                document.getElementById('metrica-cliques').innerText = "Erro";
-                document.getElementById('metrica-taxa').innerText = "Erro";
-            } finally {
-                containerMetricas.classList.remove('loading');
+                console.error("Erro ao carregar dashboard", e);
+                msgErro.innerText = e.message || "Erro inesperado.";
+                bannerErro.style.display = 'flex';
             }
         }
 

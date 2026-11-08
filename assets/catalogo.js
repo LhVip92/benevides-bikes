@@ -2,6 +2,8 @@ const numeroWhatsapp = '5585991798930';
 let todosOsProdutos = [];
 let categoriaAtual = 'Todos';
 let termoBusca = '';
+let cardObserver = null; // Variável global para gerenciar o ciclo de vida do observer
+
 const dinheiro = value => Number(value).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 async function carregarCatalogo() {
@@ -132,38 +134,39 @@ function renderizarProdutos(produtos) {
     });
     grid.appendChild(fragment);
     
-    // NOVO: Chama a animação após renderizar os produtos na tela
+    // Chama a animação após renderizar os produtos
     animarCards();
 }
 
-// NOVO: Função de animação usando IntersectionObserver nativo
+// Função de animação com ciclo de vida controlado
 function animarCards() {
     const cards = document.querySelectorAll('.card');
     
-    // Se o usuário prefere menos movimento, mostra tudo imediatamente sem animar
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // Desconecta o observer anterior (evita vazamento de memória)
+    if (cardObserver) {
+        cardObserver.disconnect();
+        cardObserver = null;
+    }
+
+    // Fallback para acessibilidade e navegadores antigos
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
         cards.forEach(card => card.classList.add('card-anim-visible'));
         return;
     }
 
-    // Fallback para navegadores muito antigos sem IntersectionObserver
-    if (!('IntersectionObserver' in window)) {
-        cards.forEach(card => card.classList.add('card-anim-visible'));
-        return;
-    }
-
-    const observer = new IntersectionObserver((entries) => {
+    // Cria um novo observer
+    cardObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('card-anim-visible');
-                observer.unobserve(entry.target); // Para de observar após animar para economizar memória
+                if (cardObserver) cardObserver.unobserve(entry.target); 
             }
         });
     }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
 
     cards.forEach(card => {
         card.classList.add('card-anim-hidden');
-        observer.observe(card);
+        cardObserver.observe(card);
     });
 }
 
