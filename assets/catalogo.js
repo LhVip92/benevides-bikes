@@ -131,6 +131,40 @@ function renderizarProdutos(produtos) {
         fragment.appendChild(card);
     });
     grid.appendChild(fragment);
+    
+    // NOVO: Chama a animação após renderizar os produtos na tela
+    animarCards();
+}
+
+// NOVO: Função de animação usando IntersectionObserver nativo
+function animarCards() {
+    const cards = document.querySelectorAll('.card');
+    
+    // Se o usuário prefere menos movimento, mostra tudo imediatamente sem animar
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        cards.forEach(card => card.classList.add('card-anim-visible'));
+        return;
+    }
+
+    // Fallback para navegadores muito antigos sem IntersectionObserver
+    if (!('IntersectionObserver' in window)) {
+        cards.forEach(card => card.classList.add('card-anim-visible'));
+        return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('card-anim-visible');
+                observer.unobserve(entry.target); // Para de observar após animar para economizar memória
+            }
+        });
+    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
+
+    cards.forEach(card => {
+        card.classList.add('card-anim-hidden');
+        observer.observe(card);
+    });
 }
 
 function fecharLightbox(event) {
