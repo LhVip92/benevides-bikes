@@ -17,7 +17,7 @@ async function carregarCatalogo() {
         todosOsProdutos = dados;
         aplicarFiltros();
     } catch (_) {
-        grid.innerHTML = '<div class="vazio">Não foi possível carregar as bikes agora.<br><button type="button" class="btn-filtro" id="tentar-novamente">Tentar novamente</button><br><a href="https://wa.me/5585991798930" target="_blank" rel="noopener noreferrer">Consultar pelo WhatsApp</a></div>';
+        grid.innerHTML = '<div class="vazio">Não foi possível carregar os produtos agora.<br><button type="button" class="btn-filtro" id="tentar-novamente">Tentar novamente</button><br><a href="https://wa.me/5585991798930" target="_blank" rel="noopener noreferrer">Consultar pelo WhatsApp</a></div>';
         document.getElementById('tentar-novamente').addEventListener('click', carregarCatalogo);
     }
 }
@@ -38,7 +38,7 @@ function renderizarProdutos(produtos) {
     if (!produtos.length) {
         const mensagem = document.createElement('div');
         mensagem.className = 'vazio';
-        mensagem.textContent = todosOsProdutos.length ? 'Nenhuma bike encontrada com esses filtros.' : 'Catálogo em atualização. Consulte nossa equipe pelo WhatsApp.';
+        mensagem.textContent = todosOsProdutos.length ? 'Nenhum produto encontrado com esses filtros.' : 'Catálogo em atualização. Consulte nossa equipe pelo WhatsApp.';
         grid.appendChild(mensagem);
         return;
     }
@@ -48,7 +48,7 @@ function renderizarProdutos(produtos) {
         card.className = 'card';
         // Apenas estrutura fixa. Dados cadastrados entram por textContent.
         card.innerHTML = `
-            <div class="img-container" role="button" tabindex="0" aria-label="Ampliar foto da bicicleta">
+            <div class="img-container" role="button" tabindex="0" aria-label="Ampliar foto do produto">
                 <img class="card-img" loading="lazy" decoding="async" width="600" height="400">
                 <span class="tag-categoria"></span>
             </div>
@@ -106,7 +106,9 @@ function renderizarProdutos(produtos) {
                 b.classList.toggle('ativo', b === botao);
                 b.setAttribute('aria-pressed', String(b === botao));
             });
-            const texto = `Olá! Vi a *${produto.nome}* (Cor: ${variacao.cor}) no catálogo: ${dinheiro(vista)} à vista ou ${condicao} (total ${dinheiro(totalParcelado)}). Gostaria de consultar disponibilidade e entrega.`;
+            const tipoVariacao = ['Peças', 'Acessórios'].includes(produto.categoria) ? 'Opção' : 'Cor';
+            const tipoProduto = tipoVariacao === 'Cor' ? 'a bike' : 'o produto';
+            const texto = `Olá! Vi ${tipoProduto} *${produto.nome}* (${tipoVariacao}: ${variacao.cor}) no catálogo: ${dinheiro(vista)} à vista ou ${condicao} (total ${dinheiro(totalParcelado)}). Gostaria de consultar disponibilidade e entrega.`;
             whats.href = `https://wa.me/${numeroWhatsapp}?text=${encodeURIComponent(texto)}`;
         }
         variacoes.forEach((variacao, index) => {

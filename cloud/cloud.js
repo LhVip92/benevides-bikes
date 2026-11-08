@@ -83,7 +83,7 @@
         const section = document.createElement('section');
         section.id = 'cloud-login';
         section.style.cssText = 'width:min(440px,100%);margin:8vh auto;padding:28px;background:white;border-radius:16px;box-shadow:0 8px 30px #1b3b5a18;font-family:Arial,sans-serif';
-        section.innerHTML = '<img src="/logo-benevides.png" alt="Benevides Bikes" style="display:block;width:190px;max-width:100%;margin:0 auto 24px"><h1 style="font-size:23px;color:#1b3b5a">Área da lojista</h1><p>Entre para atualizar suas bicicletas, preços e fotos.</p><form><label for="cloud-email">E-mail</label><input id="cloud-email" type="email" autocomplete="username" required><label for="cloud-password">Senha</label><input id="cloud-password" type="password" autocomplete="current-password" required><button type="submit">Entrar</button></form><p id="cloud-login-message" role="alert" style="color:#b42318;min-height:24px"></p><a href="/">Voltar ao site</a>';
+        section.innerHTML = '<img src="/logo-benevides.png" alt="Benevides Bikes" style="display:block;width:190px;max-width:100%;margin:0 auto 24px"><h1 style="font-size:23px;color:#1b3b5a">Área da lojista</h1><p>Entre para atualizar bicicletas, peças, acessórios, preços e fotos.</p><form><label for="cloud-email">E-mail</label><input id="cloud-email" type="email" autocomplete="username" required><label for="cloud-password">Senha</label><input id="cloud-password" type="password" autocomplete="current-password" required><button type="submit">Entrar</button></form><p id="cloud-login-message" role="alert" style="color:#b42318;min-height:24px"></p><a href="/">Voltar ao site</a>';
         document.body.prepend(section);
         const message = section.querySelector('#cloud-login-message');
         message.textContent = initialMessage;
@@ -245,7 +245,7 @@
             if (!committing || knownDatabaseFailure(error)) await removeFiles(uploaded);
             throw error;
         }
-        return { mensagem: id ? 'Atualizado!' : 'Bike cadastrada!' };
+        return { mensagem: id ? 'Atualizado!' : 'Produto cadastrado!' };
     }
     async function product(id) {
         return check(await client.from('produtos').select('*,variacoes(*)').eq('id', id).single());

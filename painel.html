@@ -129,16 +129,16 @@
 
     <div class="container">
         <div class="card">
-            <h2 id="titulo-form">Cadastrar Nova Bike</h2>
+            <h2 id="titulo-form">Cadastrar produto</h2>
             <form id="formProduto">
                 <input type="hidden" id="edit_id" value="">
                 
-                <p class="secao-ajuda">Preencha os dados principais, informe os valores e adicione uma foto para cada cor disponível.</p>
+                <p class="secao-ajuda">Preencha os dados, escolha a categoria e adicione uma foto para cada cor ou opção do produto.</p>
 
-                <label for="nome">Nome da bike <span aria-hidden="true">*</span></label>
-                <input type="text" id="nome" placeholder="Ex.: Bike aro 20 Cross" autocomplete="off" required>
+                <label for="nome">Nome do produto <span aria-hidden="true">*</span></label>
+                <input type="text" id="nome" placeholder="Ex.: Bike aro 20 Cross ou Capacete infantil" autocomplete="off" required>
 
-                <label for="descricao">Descrição da bike</label>
+                <label for="descricao">Descrição do produto</label>
                 <textarea id="descricao" placeholder="Detalhes importantes: aro, marchas, material e indicação de idade."></textarea>
                 <small class="ajuda">Opcional. Escreva os detalhes que ajudam o cliente a escolher.</small>
                 
@@ -150,6 +150,8 @@
                             <option value="Urbana">Urbana / Retrô</option>
                             <option value="Infantil">Infantil</option>
                             <option value="Customizada">Customizada</option>
+                            <option value="Peças">Peças</option>
+                            <option value="Acessórios">Acessórios</option>
                         </select>
                     </div>
                     <div>
@@ -166,10 +168,10 @@
                     <div>
                         <label for="qtd_parcelas">Quantidade de parcelas <span aria-hidden="true">*</span></label>
                         <input type="number" inputmode="numeric" id="qtd_parcelas" value="10" min="1" max="36" required>
+                        <small class="ajuda">Se o produto for vendido somente à vista, use 1 parcela no mesmo valor.</small>
                     </div>
                 </div>
 
-                <!-- CORRIGIDO: Removido o display:none para permitir o uso no Supabase -->
                 <div class="cloud-total">
                     <label for="preco_total_parcelado">Total no cartão (R$, opcional):</label>
                     <input type="number" step="0.01" id="preco_total_parcelado" min="0.01" max="1000000" placeholder="Ex.: 899,90">
@@ -186,15 +188,15 @@
                     <input type="number" inputmode="decimal" step="0.01" id="preco_promocional" min="0.01" placeholder="Ex.: 399,90">
                 </div>
 
-                <label style="margin-top: 20px; font-size: 15px; color: var(--laranja-marca);" id="label-fotos">Cores e fotos</label>
-                <small class="ajuda">Escolha a cor e selecione a foto correspondente. Para cadastrar outras cores, use o botão abaixo.</small>
+                <label style="margin-top: 20px; font-size: 15px; color: var(--laranja-marca);" id="label-fotos">Cores, opções e fotos</label>
+                <small class="ajuda">Para bikes, informe a cor. Para peças e acessórios, use uma opção como tamanho ou modelo; selecione a foto correspondente.</small>
                 <div id="container-variacoes">
                     <div class="variacao-item">
-                        <input type="text" name="cor[]" aria-label="Cor da bicicleta" placeholder="Cor (ex.: Rosa)" required>
+                        <input type="text" name="cor[]" aria-label="Cor ou opção do produto" placeholder="Cor, tamanho ou modelo" required>
                         <input type="file" name="foto[]" accept="image/jpeg,image/png,image/webp" required>
                     </div>
                 </div>
-                <button type="button" class="btn-add" onclick="adicionarCor()">+ Adicionar Outra Cor</button>
+                <button type="button" class="btn-add" onclick="adicionarCor()">+ Adicionar opção/foto</button>
 
                 <button type="submit" id="btn-submit" style="margin-top: 20px;">Salvar no Banco de Dados</button>
                 <button type="button" class="btn-cancelar" id="btn-cancelar" onclick="cancelarEdicao()">Cancelar Edição</button>
@@ -202,8 +204,8 @@
         </div>
 
         <div class="card" style="flex: 2;">
-            <h2>Bikes no catálogo</h2>
-            <p class="secao-ajuda">Gerencie fotos, visibilidade, dados e exclusão de cada bike pelos botões de ação.</p>
+            <h2>Produtos no catálogo</h2>
+            <p class="secao-ajuda">Gerencie bicicletas, peças e acessórios pelos botões de ação.</p>
             <div class="tabela-wrap"><table id="tabelaProdutos">
                 <thead>
                     <tr>
@@ -222,7 +224,7 @@
     <div id="modalFotos" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Gerenciar Fotos e Cores</h2>
+                <h2>Gerenciar fotos e opções</h2>
                 <button type="button" class="close-modal" onclick="fecharModalFotos()" aria-label="Fechar fotos e cores">&times;</button>
             </div>
             <div id="lista-fotos-modal">
@@ -246,7 +248,7 @@
             const novaDiv = document.createElement('div');
             novaDiv.className = 'variacao-item';
             novaDiv.innerHTML = `
-                <input type="text" name="cor[]" aria-label="Cor da bicicleta" placeholder="Outra cor">
+                <input type="text" name="cor[]" aria-label="Cor ou opção do produto" placeholder="Outra cor, tamanho ou modelo">
                 <input type="file" name="foto[]" accept="image/jpeg,image/png,image/webp">
                 <button type="button" class="btn-remover" onclick="this.parentElement.remove()" aria-label="Remover esta cor e foto">×</button>
             `;
@@ -266,7 +268,7 @@
                 tbody.innerHTML = ''; 
 
                 if (produtosCache.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">Nenhuma bike cadastrada ainda.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#888;">Nenhum produto cadastrado ainda.</td></tr>';
                     return;
                 }
 
@@ -404,22 +406,22 @@
         }
 
         async function deletarProduto(id) {
-            if (!confirm("Tem certeza que deseja excluir esta bike INTEIRA?")) return;
+            if (!confirm("Tem certeza que deseja excluir este produto inteiro?")) return;
             const resposta = await fetch(`/admin/produtos/${id}`, {
                 method: 'DELETE',
                 headers: { 'X-Benevides-Admin': '1' }
             });
-            if (resposta.ok) { alert("Bike excluída!"); carregarProdutos(); }
+            if (resposta.ok) { alert("Produto excluído!"); carregarProdutos(); }
         }
 
         function prepararEdicao(id) {
             const produto = produtosCache.find(p => p.id === id);
             if (!produto) return;
 
-            document.getElementById('titulo-form').innerText = "Editar Bike";
-            document.getElementById('btn-submit').innerText = "Salvar Alterações";
+            document.getElementById('titulo-form').innerText = "Editar produto";
+            document.getElementById('btn-submit').innerText = "Salvar alterações";
             document.getElementById('btn-cancelar').style.display = "block";
-            document.getElementById('label-fotos').innerText = "Adicionar Novas Cores/Fotos (Opcional)";
+            document.getElementById('label-fotos').innerText = "Adicionar cores/opções e fotos (opcional)";
             
             document.getElementById('edit_id').value = produto.id;
             document.getElementById('nome').value = produto.nome;
@@ -453,10 +455,10 @@
         function cancelarEdicao() {
             document.getElementById('formProduto').reset();
             document.getElementById('edit_id').value = "";
-            document.getElementById('titulo-form').innerText = "Cadastrar Nova Bike";
-            document.getElementById('btn-submit').innerText = "Salvar no Banco de Dados";
+            document.getElementById('titulo-form').innerText = "Cadastrar produto";
+            document.getElementById('btn-submit').innerText = "Salvar produto";
             document.getElementById('btn-cancelar').style.display = "none";
-            document.getElementById('label-fotos').innerText = "Cores e Fotos";
+            document.getElementById('label-fotos').innerText = "Cores, opções e fotos";
             document.getElementById('div-preco-promo').style.display = 'none';
             
             document.getElementById('container-variacoes').innerHTML = `
@@ -486,7 +488,6 @@
                 formData.append('preco_parcelado', document.getElementById('preco_parcelado').value);
                 formData.append('qtd_parcelas', document.getElementById('qtd_parcelas').value);
                 
-                // CORRIGIDO: Se o total parcelado estiver vazio, não envia ou envia nulo
                 const totalParceladoInput = document.getElementById('preco_total_parcelado').value;
                 if (totalParceladoInput.trim() !== '') {
                     formData.append('preco_total_parcelado', totalParceladoInput);
@@ -509,7 +510,7 @@
                         if (!color && !file) continue;
                         if (!color || !file) { 
                             alert('Preencha a cor e a foto na mesma linha.');
-                            submitButton.disabled = false; // CORRIGIDO: Libera o botão para tentar de novo
+                            submitButton.disabled = false;
                             return; 
                         }
                         formData.append('novas_cores', color);
@@ -523,7 +524,7 @@
                     });
 
                     if (resposta.ok) {
-                        alert('Bike atualizada!');
+                        alert('Produto atualizado!');
                         cancelarEdicao();
                         carregarProdutos(); 
                     } else {
@@ -541,7 +542,7 @@
                     });
 
                     if (resposta.ok) {
-                        alert('Bike cadastrada!');
+                        alert('Produto cadastrado!');
                         cancelarEdicao();
                         carregarProdutos(); 
                     } else {

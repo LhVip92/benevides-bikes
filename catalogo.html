@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Confira bicicletas, cores e preços da Benevides Bikes em Fortaleza. Consulte disponibilidade e entrega pelo WhatsApp.">
+    <meta name="description" content="Confira bicicletas, peças e acessórios da Benevides Bikes em Fortaleza. Consulte disponibilidade e entrega pelo WhatsApp.">
     <meta name="theme-color" content="#1B3B5A">
     <title>Catálogo - Benevides Bikes</title>
     
@@ -204,16 +204,18 @@
 
     <div class="search-container">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input type="text" id="inputBusca" aria-label="Pesquisar bicicletas" class="search-input" placeholder="Pesquisar por nome, marca ou cor...">
+        <input type="text" id="inputBusca" aria-label="Pesquisar produtos" class="search-input" placeholder="Pesquisar por nome, categoria ou opção...">
     </div>
 
     <div class="filtros-container">
         <div class="filtros">
-            <button class="btn-filtro ativo" onclick="filtrar('Todos', this)">Todas as Bikes</button>
+            <button class="btn-filtro ativo" onclick="filtrar('Todos', this)">Todos os produtos</button>
             <button class="btn-filtro" onclick="filtrar('Mountain', this)">Mountain Bike</button>
             <button class="btn-filtro" onclick="filtrar('Urbana', this)">Urbana / Retrô</button>
             <button class="btn-filtro" onclick="filtrar('Infantil', this)">Infantil</button>
             <button class="btn-filtro" onclick="filtrar('Customizada', this)">Personalizadas</button>
+            <button class="btn-filtro" onclick="filtrar('Peças', this)">Peças</button>
+            <button class="btn-filtro" onclick="filtrar('Acessórios', this)">Acessórios</button>
         </div>
     </div>
 
